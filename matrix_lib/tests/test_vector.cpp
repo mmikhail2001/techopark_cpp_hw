@@ -143,3 +143,37 @@ TEST(TestFunctionalityDVector, TestPushPopFrontBack)
     EXPECT_EQ(dvec.Front(), 1);
 }
 
+TEST(TestFunctionalityDVector, TestArithmeticOperators)
+{
+    DVector dvec1{1, 2, 3};
+    DVector dvec2{5, 6, 7};
+    (dvec1 *= dvec2) += dvec1;
+    EXPECT_EQ(dvec1[0], 10);
+    EXPECT_EQ(dvec1[1], 24);
+    EXPECT_EQ(dvec1[2], 42);
+
+    DVector dvec3{2, 4, 8};
+    DVector dvec4{4, 5, 6};
+
+    DVector dvec5 = (dvec3 * 2 * dvec4) + dvec3 / 2;
+
+    /*
+        { 4 * 4; 8 * 5; 16 * 6 }
+        +
+        { 1; 2; 4 }
+        =
+        { 17; 42; 100 }
+    */
+
+   dvec5 *= 2;
+
+    EXPECT_EQ(dvec5[0], 17 * 2);
+    EXPECT_EQ(dvec5[1], 42 * 2);
+    EXPECT_EQ(dvec5[2], 100 * 2);
+
+    DVector dvec6{3, 4};
+    DVector dvec7{10, 2};
+    double resDot = dvec6.Dot(dvec7);
+    EXPECT_EQ(resDot, 38);
+}
+

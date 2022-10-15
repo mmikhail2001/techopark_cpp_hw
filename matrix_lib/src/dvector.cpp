@@ -3,12 +3,38 @@
 #include "stdafx.h"
 #include "dvector.h"
 
+// static + const = const
+const std::string ERROR_ARITHMETIC = "Arithmetic operations on vectors of different size";
+const std::string ERROR_RANGE = "Index out of range";
+const std::string ERROR_EMPTY = "DVector is empty";
+
+void IsEqualSize(size_t size1, size_t size2, std::string const &msgError = "Exception")
+{
+    if (size1 != size2)
+    {
+        throw std::runtime_error(msgError);
+    }
+}
+
+void Print(DVector const &dvector, std::string const &message)
+{
+    if (!message.empty())
+    {
+        std::cout << message << std::endl;
+    }
+    for (size_t i = 0; i < dvector.Size(); ++i)
+    {
+        std::cout << dvector[i] << " ";
+    }
+    std::cout << std::endl;
+}
+
 DVector::DVector(size_t size, double fill_value) : m_size(size), m_capacity(size)
 {
     m_array = new double[m_capacity]();
     if (fill_value)
     {
-        std::fill_n(m_array, m_size, fill_value);
+        Fill(fill_value);
     }
 }
 
@@ -49,15 +75,20 @@ DVector &DVector::operator=(DVector other)
     return *this;
 }
 
-const double *DVector::CBegin()
+const double *DVector::CBegin() const
 {
     return m_array;
 }
 
 // указатель на элемент после последнего
-const double *DVector::CEnd()
+const double *DVector::CEnd() const
 {
     return &m_array[m_size - 1] + 1;
+}
+
+void DVector::Fill(double fill_value)
+{
+    std::fill_n(m_array, m_size, fill_value);
 }
 
 void DVector::Swap(DVector &other)
@@ -71,7 +102,7 @@ double const &DVector::operator[](size_t index) const
 {
     if (index > m_size - 1)
     {
-        throw std::runtime_error("Index out of range");
+        throw std::runtime_error(ERROR_RANGE);
     }
     return m_array[index];
 }
@@ -80,7 +111,7 @@ double &DVector::operator[](size_t index)
 {
     if (index > m_size - 1)
     {
-        throw std::runtime_error("Index out of range");
+        throw std::runtime_error(ERROR_RANGE);
     }
     return m_array[index];
 }
@@ -103,7 +134,7 @@ void DVector::PopBack()
 {
     if (Empty())
     {
-        throw std::runtime_error("PopBack() from empty vector");
+        throw std::runtime_error("PopBack(): " + ERROR_EMPTY);
     }
     --m_size;
 }
@@ -133,7 +164,7 @@ double DVector::Front() const
 {
     if (Empty())
     {
-        throw std::runtime_error("From() from empty vector");
+        throw std::runtime_error("From(): " + ERROR_EMPTY);
     }
     return m_array[0];
 }
@@ -142,7 +173,7 @@ double DVector::Back() const
 {
     if (Empty())
     {
-        throw std::runtime_error("Back() from empty vector");
+        throw std::runtime_error("Back(): " + ERROR_EMPTY);
     }
     return m_array[m_size - 1];
 }
@@ -153,6 +184,7 @@ DVector::~DVector()
     {
         delete[] m_array;
     }
+    m_array = nullptr;
 }
 
 double *DVector::Find(double value) const
@@ -183,6 +215,113 @@ double *DVector::Erase(double *it_value)
 
 }
 
+DVector &operator+=(DVector &left, DVector const &right) 
+{
+    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
+    for (size_t i = 0; i < left.Size(); ++i)
+    {
+        left[i] += right[i];
+    }
+    return left;
+}
+
+DVector &operator-=(DVector &left, DVector const &right) 
+{
+    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
+    for (size_t i = 0; i < left.Size(); ++i)
+    {
+        left[i] -= right[i];
+    }
+    return left;
+}
+
+DVector &operator*=(DVector &left, DVector const &right) 
+{
+    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
+    for (size_t i = 0; i < left.Size(); ++i)
+    {
+        left[i] *= right[i];
+    }
+    return left;
+}
+
+DVector &operator/=(DVector &left, DVector const &right) 
+{
+    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
+    for (size_t i = 0; i < left.Size(); ++i)
+    {
+        left[i] /= right[i];
+    }
+    return left;
+}
+
+// -------------------------------------------------------------------------
+
+DVector &operator*=(DVector &left, double value) 
+{
+    for (size_t i = 0; i < left.Size(); ++i)
+    {
+        left[i] *= value;
+    }
+    return left;
+}
+
+DVector &operator/=(DVector &left, double value) 
+{
+    for (size_t i = 0; i < left.Size(); ++i)
+    {
+        left[i] /= value;
+    }
+    return left;
+}
+
+DVector operator*(DVector left, double value)
+{
+    return left *= value;
+}
+
+DVector operator/(DVector left, double value)
+{
+    return left /= value;
+}
+
+// -------------------------------------------------------------------------
+
+DVector operator+(DVector left, DVector const &right)
+{
+    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
+    return left += right;
+}
+
+DVector operator-(DVector left, DVector const &right)
+{
+    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
+    return left -= right;
+}
+
+DVector operator*(DVector left, DVector const &right)
+{
+    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
+    return left *= right;
+}
+
+DVector operator/(DVector left, DVector const &right)
+{
+    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
+    return left /= right;
+}
+
+double DVector::Dot(DVector const &other) const
+{
+    IsEqualSize(m_size, other.Size(), ERROR_ARITHMETIC);
+    double dotProduct = 0;
+    for (size_t i = 0; i < m_size; ++i)
+    {
+        dotProduct += m_array[i] * other[i];
+    } 
+    return dotProduct;
+}
+
 void DVector::grow()
 {
     size_t new_capacity = std::max(1, static_cast<int>(m_capacity * 2));
@@ -191,17 +330,4 @@ void DVector::grow()
     delete[] m_array;
     m_array = new_array;
     m_capacity = new_capacity;
-}
-
-void Print(DVector const &dvector, std::string const &message)
-{
-    if (!message.empty())
-    {
-        std::cout << message << std::endl;
-    }
-    for (size_t i = 0; i < dvector.Size(); ++i)
-    {
-        std::cout << dvector[i] << " ";
-    }
-    std::cout << std::endl;
 }

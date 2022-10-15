@@ -1,0 +1,39 @@
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: leshiy1295/gcc_linters_valgrind_cmake_gtest
+    # needs: [check]
+    steps:
+    - uses: actions/checkout@v2 
+    - run: make build
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: executable_file
+        path: build/fib
+  test:
+    runs-on: ubuntu-latest
+    container: leshiy1295/gcc_linters_valgrind_cmake_gtest
+    # needs: [build]
+    steps:
+      - uses: actions/checkout@v2 
+      - name: install lcov
+        run: apt-get install lcov -y
+      - run: make build TEST_OPT=ON
+      - run: make run
+      - run: make test
+      - name: Test coverage
+        run: |
+          cd build && lcov -t "tests_fib" -o coverage.info -c -d fib_lib/CMakeFiles
+          genhtml -o report coverage.info
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-info
+          path: build/report
+      - name: launch valgrind
+        run: |
+          cd build
+          valgrind --tool=memcheck --leak-check=yes ./fib

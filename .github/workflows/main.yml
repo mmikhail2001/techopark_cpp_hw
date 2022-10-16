@@ -2,6 +2,7 @@ on: push
 
 env:
   LIB_NAME: matrix_lib
+  EXE_FILE: main
 
 jobs:
   build:
@@ -39,4 +40,4 @@ jobs:
       - name: launch valgrind
         run: |
           cd build
-          valgrind --tool=memcheck --leak-check=yes ./fib
+          valgrind --tool=memcheck --leak-check=yes ./${EXE_FILE}

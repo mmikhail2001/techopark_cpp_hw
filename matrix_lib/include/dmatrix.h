@@ -31,6 +31,8 @@ public:
 
     // void Erase(Dvector *dvec);
 
+    DVector GetDiag() const;
+
     void Swap(DMatrix &other);
     DMatrix &operator=(DMatrix other);
     size_t nRows() const;

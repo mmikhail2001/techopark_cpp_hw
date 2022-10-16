@@ -237,6 +237,11 @@ void DMatrix::PopColBack()
     }
 }
 
+DVector DMatrix::GetDiag() const
+{
+
+}
+
 
 void DMatrix::grow()
 {

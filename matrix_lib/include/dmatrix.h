@@ -29,6 +29,8 @@ public:
     void PushColBack(std::initializer_list<double> const &init_list);
     void PopColBack();
 
+    // void Erase(Dvector *dvec);
+
     void Swap(DMatrix &other);
     DMatrix &operator=(DMatrix other);
     size_t nRows() const;

@@ -239,7 +239,12 @@ void DMatrix::PopColBack()
 
 DVector DMatrix::GetDiag() const
 {
+    size_t nElemsDiag = std::min(m_nRows, m_nCols); 
+    DVector dvec(nElemsDiag);
+    for (size_t i = 0; i < nElemsDiag; ++i)
+    {
 
+    }
 }
 
 

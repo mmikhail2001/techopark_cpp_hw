@@ -2,45 +2,94 @@
 
 #include "dvector.h"
 
+enum class ORIENT { ROW = 0, COL };
+
 class DMatrix
 {
 private:
-    DVector *m_matrix   = nullptr;
-    size_t m_nRows      = 0;
-    size_t m_nCols      = 0;
-    size_t m_capacity   = 0;
+    DVector *m_matrix     = nullptr;
+    size_t   m_nRows      = 0;
+    size_t   m_nCols      = 0;
+    size_t   m_capacity   = 0;
     void grow();
 public:
     DMatrix() = default;
     DMatrix(DVector *matrix, size_t nRows);
-    DMatrix(DVector const &dvec);
+    // Создание матрицы как вектор-строку или вектор-столбец
+    DMatrix(DVector const &dvec, ORIENT orientation = ORIENT::ROW);
     DMatrix(size_t rows, size_t cols, double fill_value = 0);
     DMatrix(std::initializer_list<std::initializer_list<double>> const &matrix);
     DMatrix(DMatrix const &other);
-    void Clear();
-    bool Empty();
     DMatrix(DMatrix &&other);
-    
-    void PushRowBack(DVector const &dvec);
-    void PushRowBack(std::initializer_list<double> const &init_list);
-    void PopRowBack();
+    DMatrix &operator=(DMatrix other);
+    ~DMatrix();
+public:
+    void    Clear();
+    bool    Empty();
+    void    Swap(DMatrix &other);
+    // Удаление / добавление последних строк / столбцов
+    void    PushRowBack(DVector const &dvec);
+    void    PushRowBack(std::initializer_list<double> const &init_list);
+    void    PopRowBack();
 
-    void PushColBack(DVector const &dvec);
-    void PushColBack(std::initializer_list<double> const &init_list);
-    void PopColBack();
+    void    PushColBack(DVector const &dvec);
+    void    PushColBack(std::initializer_list<double> const &init_list);
+    void    PopColBack();
 
-    // void Erase(Dvector *dvec);
+    void    EraseByIndex(size_t index, ORIENT orientation = ORIENT::ROW);
 
     DVector GetDiag() const;
+    DVector GetRow(size_t index) const;
+    DVector GetCol(size_t index) const;
 
-    void Swap(DMatrix &other);
-    DMatrix &operator=(DMatrix other);
-    size_t nRows() const;
-    size_t nCols() const;
-    size_t Capacity() const;
-    ~DMatrix();
+    DMatrix Dot(DMatrix const &other) const;
+    DVector Dot(DVector const &dvec) const;
+
+    size_t  nRows() const;
+    size_t  nCols() const;
+    size_t  Capacity() const;
+
+    // модифицирующие операции
+    void    AddNum(double value);
+    void    SubNum(double value);
+    void    AddVec(DVector const &dvec, ORIENT orientation = ORIENT::ROW);
+    void    SubVec(DVector const &dvec, ORIENT orientation = ORIENT::ROW);
+
+    DMatrix T() const;
+    // DMatrix GetMatrix
+    double Det() const;
+    double Minor(size_t iIndex, size_t jIndex) const;
+    DMatrix Adj();
+    DMatrix Inv();
+    
     DVector const    &operator[](size_t index) const;
     DVector          &operator[](size_t index);
 };
+
+DMatrix &operator/=(DMatrix &matrix, double value);
+DMatrix &operator*=(DMatrix &matrix, double value);
+
+DMatrix  operator/(DMatrix matrix, double value);
+DMatrix  operator*(DMatrix matrix, double value);
+
+// -----
+
+DMatrix &operator/=(double value, DMatrix &matrix);
+DMatrix &operator*=(double value, DMatrix &matrix);
+
+DMatrix  operator/(double value, DMatrix matrix);
+DMatrix  operator*(double value, DMatrix matrix);
+
+// -----
+
+DMatrix &operator+=(DMatrix &left, DMatrix const &right);
+DMatrix &operator-=(DMatrix &left, DMatrix const &right);
+DMatrix &operator/=(DMatrix &left, DMatrix const &right);
+DMatrix &operator*=(DMatrix &left, DMatrix const &right);
+
+DMatrix  operator+(DMatrix left, DMatrix const &right);
+DMatrix  operator-(DMatrix left, DMatrix const &right);
+DMatrix  operator/(DMatrix left, DMatrix const &right);
+DMatrix  operator*(DMatrix left, DMatrix const &right);
 
 void Print(DMatrix const &matrix, std::string const &msg = std::string{});

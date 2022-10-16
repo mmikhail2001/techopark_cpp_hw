@@ -2,6 +2,34 @@
 
 #include "dmatrix.h"
 
+bool CheckMatrix(DMatrix const &matrix, std::initializer_list<std::initializer_list<double>> const &init_list)
+{
+    for (size_t i = 0; i < matrix.nRows(); ++i)
+    {
+        for (size_t j = 0; j < matrix.nCols(); ++j)
+        {
+            if (matrix[i][j] - *((init_list.begin() + i)->begin() + j) > 0.000001)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+static bool CheckVector(DVector const &dvec, std::initializer_list<double> const &init_list)
+{
+    for (size_t i = 0; i < dvec.Size(); ++i)
+    {
+        if (dvec[i] - *(init_list.begin() + i) > 0.000001)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 TEST(TestCreateDMatrix, TestConstructorsSpecifySizeAndInitList) 
 {
     DMatrix dmat1(3, 10, 4);
@@ -34,11 +62,28 @@ TEST(TestCreateDMatrix, TestConstructorsDVectorsAndCopy)
 
     EXPECT_EQ(dmat1[1][0], 3);
     EXPECT_EQ(dmat1[0][1], 7);
+}
 
-    DMatrix dmat3(DVector{2, 4, 6, 8});
-    EXPECT_EQ(dmat3.nRows(), 1);
-    EXPECT_EQ(dmat3.nCols(), 4);
-    EXPECT_EQ(dmat3[0][2], 6);
+TEST(TestCreateDMatrix, TestConstructorsSpecifyRowOrCol) 
+{
+    DMatrix dmat(DVector{2, 4, 6, 8}); // ORIENT::ROW by default
+
+    EXPECT_EQ(dmat.nRows(), 1);
+    EXPECT_EQ(dmat.nCols(), 4);
+
+    EXPECT_TRUE(CheckMatrix(dmat, { 
+            {2, 4, 6, 8}
+        }));
+
+    dmat = DMatrix(DVector{2, 4, 6, 8}, ORIENT::COL);
+    EXPECT_EQ(dmat.nRows(), 4);
+    EXPECT_EQ(dmat.nCols(), 1);
+    EXPECT_TRUE(CheckMatrix(dmat, { 
+            {2},
+            {4},
+            {6},
+            {8}
+        }));
 }
 
 TEST(TestCreateDMatrix, TestOperatorAssign) 
@@ -71,7 +116,7 @@ TEST(TestErrorHandling, TestAccessAndCreateNotRectangleMatrix)
     EXPECT_THROW(dmat[0][5], std::runtime_error);
 }
 
-TEST(TestErrorHandling, TestPushPopRow)
+TEST(TestFunctionalityDMatrix, TestPushPopRow)
 {
     DMatrix dmat;
     EXPECT_THROW(dmat.PopRowBack(), std::runtime_error);
@@ -85,8 +130,11 @@ TEST(TestErrorHandling, TestPushPopRow)
     EXPECT_THROW(dmat.PushRowBack(dvec2), std::runtime_error);
 
     
-    EXPECT_EQ(dmat[0][1], 2);
-    EXPECT_EQ(dmat[1][2], 6);
+    EXPECT_TRUE(CheckMatrix(dmat, { 
+            {1, 2, 3},
+            {4, 5, 6}
+        }));
+
     EXPECT_EQ(dmat.nCols(), 3);
     EXPECT_EQ(dmat.nRows(), 2);
 
@@ -104,7 +152,7 @@ TEST(TestErrorHandling, TestPushPopRow)
 
 // размер матрицы зависит от ее содержимого
 // без содержимого матрица не имеет размера и может в будущем принимать любые формы
-TEST(TestErrorHandling, TestPushPopRow_WithChangeDimensity)
+TEST(TestFunctionalityDMatrix, TestPushPopRow_WithChangeDimensity)
 {
     DMatrix dmat;
     dmat.PushRowBack({0, 0, 7});
@@ -126,7 +174,7 @@ TEST(TestErrorHandling, TestPushPopRow_WithChangeDimensity)
     EXPECT_EQ(dmat.Capacity(), 1);
 }
 
-TEST(TestErrorHandling, TestPushPopCol)
+TEST(TestFunctionalityDMatrix, TestPushPopCol)
 {
     DMatrix dmat;
     dmat.PushColBack({1, 2, 3});
@@ -152,7 +200,7 @@ TEST(TestErrorHandling, TestPushPopCol)
     EXPECT_EQ(dmat.nRows(), 2);
 }
 
-TEST(TestErrorHandling, TestPushPopMix)
+TEST(TestFunctionalityDMatrix, TestPushPopMix)
 {
     DMatrix dmat{
         {1, 2, 3},
@@ -161,7 +209,12 @@ TEST(TestErrorHandling, TestPushPopMix)
     dmat.PushColBack({7, 7});
     dmat.PushRowBack({8, 8, 8, 100});
 
-    EXPECT_EQ(dmat[2][3], 100);
+    EXPECT_TRUE(CheckMatrix(dmat, { 
+            {1, 2, 3, 7},
+            {4, 5, 6, 7},
+            {8, 8, 8, 100},
+        }));
+
 
     EXPECT_EQ(dmat.nCols(), 4);
     EXPECT_EQ(dmat.nRows(), 3);
@@ -181,6 +234,337 @@ TEST(TestErrorHandling, TestPushPopMix)
 
     dmat = {{1, 2, 3, 4, 5, 6, 7}};
     dmat.PushColBack({8});
-    EXPECT_EQ(dmat[0][0], 1);
-    EXPECT_EQ(dmat[0][7], 8);
+
+    EXPECT_TRUE(CheckMatrix(dmat, { 
+            {1, 2, 3, 4, 5, 6, 7, 8}
+        }));
+
 }
+
+TEST(TestFunctionalityDMatrix, TestGetRowColDiag)
+{
+    // GetCol
+    DMatrix dmat{
+        {1, 2, 3, 4, 5},
+        {6, 7, 8, 9, 10}
+    };
+
+    DVector dvec1 = dmat.GetCol(0);
+    EXPECT_EQ(dvec1[0], dmat[0][0]);
+    EXPECT_EQ(dvec1[1], dmat[1][0]);
+    
+    dvec1[0] = 100;
+    EXPECT_NE(dvec1[0], dmat[0][0]);
+
+    dmat[1][0] = 600;
+    EXPECT_NE(dvec1[1], dmat[1][0]);
+
+    DVector dvec2 = dmat.GetCol(4);
+    EXPECT_EQ(dvec2.Size(), 2);
+    EXPECT_EQ(dvec2[0], dmat[0][4]);
+    EXPECT_EQ(dvec2[1], dmat[1][4]);
+
+    // GetRow
+    DVector dvec3 = dmat.GetRow(1);
+    EXPECT_EQ(dvec3.Size(), 5);
+    EXPECT_EQ(dvec3[0], dmat[1][0]);
+    EXPECT_EQ(dvec3[4], dmat[1][4]);
+    
+    // GetDiag
+    DVector dvec4 = dmat.GetDiag();
+    EXPECT_EQ(dvec4.Size(), 2);
+    EXPECT_EQ(dvec4[0], dmat[0][0]);
+    EXPECT_EQ(dvec4[1], dmat[1][1]);
+
+    DMatrix dmat2{
+        {10},
+        {20}
+    };
+
+    DVector dvec5 = dmat2.GetDiag();
+    EXPECT_EQ(dvec5.Size(), 1);
+    EXPECT_EQ(dvec5[0], dmat2[0][0]);
+    
+    DMatrix dmat3{
+        {3, 5},
+        {7, 9}
+    };
+
+    DVector dvec6 = dmat3.GetDiag();
+    EXPECT_EQ(dvec6.Size(), 2);
+    EXPECT_EQ(dvec6[0], dmat3[0][0]);
+    EXPECT_EQ(dvec6[1], dmat3[1][1]);
+}
+
+TEST(TestFunctionalityDMatrix, TestArithmeticOperators)
+{
+    DMatrix dmat1{
+        {1, 2, 3},
+        {6, 7, 8}
+    };
+    DMatrix dmat2{
+        {11, 12, 13},
+        {14, 15, 16}
+    };
+    DMatrix dmatErr1{
+        {1, 1},
+        {1, 1}
+    };
+
+    DMatrix dmatErr2;
+    DMatrix dmatErr3{
+        {2, 4, 6}
+    };
+    DMatrix dmat3 = dmat1 * 2 + dmat2 / 1;
+
+    EXPECT_THROW(dmat3 + dmatErr1, std::runtime_error);
+    EXPECT_THROW(dmat3 *= dmatErr1, std::runtime_error);
+    EXPECT_THROW(dmat3 -= dmatErr2, std::runtime_error);
+    EXPECT_THROW(dmat3 / dmatErr3, std::runtime_error);
+
+    EXPECT_TRUE(CheckMatrix(dmat3, { 
+            {13, 16, 19}, 
+            {26, 29, 32} 
+            }));
+
+}
+
+TEST(TestFunctionalityDMatrix, TestDotProductOfMatrices)
+{
+    DMatrix dmat1{
+        {1, 2, 3},
+        {4, 5, 6}
+    };
+
+    DMatrix dmat2{
+        {2, 3},
+        {4, 5},
+        {6, 7}
+    };
+
+    DMatrix dmatRes = dmat1.Dot(dmat2);
+    EXPECT_EQ(dmatRes.nRows(), 2);
+    EXPECT_EQ(dmatRes.nCols(), 2);
+
+    EXPECT_TRUE(CheckMatrix(dmatRes, { {28, 34}, {64, 79} }));
+}
+
+
+TEST(TestFunctionalityDMatrix, TestDotProductBetweenMatrixAndVector)
+{
+    // matrix * vector
+
+    DMatrix dmat1{
+        {1, 2, 3},
+        {4, 5, 6}
+    };
+
+    DVector dvec1{1, 2, 3};
+    DVector dvecErr{1, 2, 3, 4};
+
+    EXPECT_TRUE(CheckVector(dmat1.Dot(dvec1), { 14, 32 }));
+    EXPECT_THROW(dmat1.Dot(dvecErr), std::runtime_error);
+
+    // vector * matrix
+
+    DVector dvec2{1, 2};
+    EXPECT_TRUE(CheckVector(dvec2.Dot(dmat1), { 9, 12, 15 }));
+
+    DMatrix dmatErr{
+        {1, 2},
+        {3, 4},
+        {5, 6}
+    };
+    EXPECT_THROW(dvec2.Dot(dmatErr), std::runtime_error);
+}
+
+TEST(TestFunctionalityDMatrix, TestAddSubVectorAndNum)
+{
+    DMatrix dmat{
+        {1, 2, 3},
+        {4, 5, 6}
+    };
+
+    dmat.AddNum(1);
+    EXPECT_TRUE(CheckMatrix(dmat, {
+        {2, 3, 4},
+        {5, 6, 7}
+    }));
+
+    DVector dvec1{10, 15};
+    dmat.AddVec(dvec1, ORIENT::COL);
+    EXPECT_TRUE(CheckMatrix(dmat, {
+        {12, 13, 14},
+        {20, 21, 22}
+    }));
+
+    DVector dvec2{10, 10, 0};
+    dmat.SubVec(dvec2, ORIENT::ROW); // but ORIENT::ROW by default
+    EXPECT_TRUE(CheckMatrix(dmat, {
+        {2,  3,  14},
+        {10, 11, 22}
+    }));
+
+    EXPECT_THROW(dmat.AddVec({1}, ORIENT::ROW), std::runtime_error);
+    EXPECT_THROW(dmat.AddVec({1}, ORIENT::COL), std::runtime_error);
+}
+
+TEST(TestFunctionalityDMatrix, TestTransponse)
+{
+    DMatrix dmat{
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+    DMatrix dmatT = dmat.T();
+
+    EXPECT_TRUE(CheckMatrix(dmatT, {
+        {1,  4,  7},
+        {2, 5, 8},
+        {3, 6, 9}
+    }));
+
+    EXPECT_THROW(DMatrix({{1, 2}}).T(), std::runtime_error);
+}
+
+TEST(TestFunctionalityDMatrix, TestEraseByIndexRow)
+{
+    // Erase row
+    DMatrix dmat{
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+    dmat.EraseByIndex(0);
+    EXPECT_TRUE(CheckMatrix(dmat, {
+        {4, 5, 6},
+        {7, 8, 9}
+    }));
+    dmat.EraseByIndex(1);
+    EXPECT_TRUE(CheckMatrix(dmat, {
+        {4, 5, 6}
+    }));
+
+
+    EXPECT_EQ(dmat.nRows(), 1);
+    EXPECT_EQ(dmat.nCols(), 3);
+
+    EXPECT_THROW(dmat.EraseByIndex(1), std::runtime_error);
+    dmat.EraseByIndex(0);
+    EXPECT_THROW(dmat.EraseByIndex(0), std::runtime_error);
+
+    EXPECT_EQ(dmat.nRows(), 0);
+    EXPECT_EQ(dmat.nCols(), 0);
+    EXPECT_EQ(dmat.Capacity(), 0);
+}
+
+TEST(TestFunctionalityDMatrix, TestEraseByIndexCol)
+{
+    DMatrix dmat = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+
+    dmat.EraseByIndex(1, ORIENT::COL);
+    EXPECT_TRUE(CheckMatrix(dmat, {
+        {1, 3},
+        {4, 6},
+        {7, 9}
+    }));
+
+    EXPECT_EQ(dmat.nRows(), 3);
+    EXPECT_EQ(dmat.nCols(), 2);
+
+    dmat.EraseByIndex(0, ORIENT::COL);
+    EXPECT_TRUE(CheckMatrix(dmat, {
+        {3},
+        {6},
+        {9}
+    }));
+
+    dmat.EraseByIndex(0, ORIENT::COL);
+    EXPECT_TRUE(CheckMatrix(dmat, {{}}));
+
+    EXPECT_THROW(dmat.EraseByIndex(0, ORIENT::COL), std::runtime_error);
+    EXPECT_THROW(dmat.EraseByIndex(200, ORIENT::COL), std::runtime_error);
+}
+
+TEST(TestFunctionalityDMatrix, TestDeterminant)
+{
+    DMatrix dmat1 = {
+        {3, 5},
+        {1, 5}
+    };
+    EXPECT_EQ(dmat1.Det(), 10);
+
+    DMatrix dmat2 = {
+        {3, 5, 2},
+        {1, 5, 6},
+        {5, 7, 2}
+    };
+    EXPECT_EQ(dmat2.Det(), 8);
+
+    DMatrix dmat3 = {
+        {3, 5, 2, 7},
+        {1, 5, 6, 4},
+        {5, 7, 2, 9},
+        {5, 7, 2, 5}
+    };
+    EXPECT_EQ(dmat3.Det(), -32);
+}
+
+TEST(TestFunctionalityDMatrix, TestInvertibleMatrix)
+{
+    DMatrix dmat1 = {
+        {1, -2, 1},
+        {2, 1, -1},
+        {3, 2, -2}
+    };
+
+    DMatrix dmatInv = dmat1.Inv();
+
+    EXPECT_EQ(dmatInv.nRows(), 3);
+    EXPECT_EQ(dmatInv.nCols(), 3);
+
+    EXPECT_TRUE(CheckMatrix(dmatInv, {
+        {0, 2, -1},
+        {-1, 5, -3},
+        {-1, 8, -5}
+    }));
+
+    DMatrix dmat2 = {
+        {1, 1, 1, -1},
+        {1, -2, 1, -1},
+        {1, 1, 3, 1},
+        {1, 1, 1, -4}
+    };
+
+    dmatInv = dmat2.Inv();
+
+    EXPECT_TRUE(CheckMatrix(dmatInv, {
+        {11./6, 1./3, -1./2, -2./3},
+        {1./3, -1./3, 0, 0},
+        {-5./6, 0, 1./2, 1./3},
+        {1./3, 0, 0, -1./3}
+    }));
+
+    DMatrix dmatErr1 = {
+        {1, -2, 1},
+        {2, 1, -1},
+    };
+
+    // определитель = 0, обратной матрицы не существует
+    DMatrix dmatErr2 = {
+        {1, 2},
+        {2, 4},
+    };
+
+    EXPECT_THROW(dmatErr1.Inv(), std::runtime_error);
+    EXPECT_TRUE(dmatErr2.Inv().Empty());
+
+
+}
+
+
+

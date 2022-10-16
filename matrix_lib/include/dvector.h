@@ -2,6 +2,8 @@
 
 #include "stdafx.h"
 
+class DMatrix;
+
 // Vector of doubles number
 class DVector
 {
@@ -43,8 +45,14 @@ public:
 
     double const    &operator[](size_t index) const;
     double          &operator[](size_t index);
-    
-    double Dot(DVector const &other) const;
+
+    // немодифицирующие операции
+    double  Dot(DVector const &other) const;
+    DVector Dot(DMatrix const &matrix) const;
+
+    // модифицирующие операции
+    void AddNum(double value);
+    void SubNum(double value);
 };
 
 DVector &operator/=(DVector &left, double value);

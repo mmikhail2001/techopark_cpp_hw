@@ -2,13 +2,14 @@
 
 #include "stdafx.h"
 #include "dvector.h"
+#include "dmatrix.h"
 
 // static + const = const
 const std::string ERROR_ARITHMETIC = "Arithmetic operations on vectors of different size";
 const std::string ERROR_RANGE = "Index out of range";
 const std::string ERROR_EMPTY = "DVector is empty";
 
-void IsEqualSize(size_t size1, size_t size2, std::string const &msgError = "Exception")
+static void IsEqualSize(size_t size1, size_t size2, std::string const &msgError = "Exception")
 {
     if (size1 != size2)
     {
@@ -198,6 +199,21 @@ double *DVector::Find(double value) const
     return result; 
 }
 
+void DVector::AddNum(double value)
+{
+    // можно сделать Begin() и End() приватными
+    std::for_each(m_array, &m_array[m_size - 1] + 1, [value](double &elem){
+        elem += value;
+    });
+}
+
+void DVector::SubNum(double value)
+{
+    std::for_each(m_array, &m_array[m_size - 1] + 1, [value](double &elem){
+        elem -= value;
+    });
+}
+
 // возвращает элемент, следующий за удаленным либо предыдущий, если удаленный был последним
 double *DVector::Erase(double *it_value)
 {
@@ -320,6 +336,25 @@ double DVector::Dot(DVector const &other) const
         dotProduct += m_array[i] * other[i];
     } 
     return dotProduct;
+}
+
+// подразуемевается что вектор-строка умножается на матрицу
+// результат - DVector
+DVector DVector::Dot(DMatrix const &matrix) const
+{
+    IsEqualSize(m_size, matrix.nRows(), ERROR_ARITHMETIC);
+
+    DVector dvecRes(matrix.nCols());
+    for (size_t i = 0; i < matrix.nCols(); ++i)
+    {
+        double elem_i_j = 0;
+        for (size_t j = 0; j < m_size; ++j)
+        {
+            elem_i_j += matrix[j][i] * m_array[j];
+        }
+        dvecRes[i] = elem_i_j;
+    }
+    return dvecRes;
 }
 
 void DVector::grow()

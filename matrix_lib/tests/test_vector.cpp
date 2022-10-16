@@ -2,6 +2,18 @@
 
 #include "dvector.h"
 
+static bool CheckVector(DVector const &dvec, std::initializer_list<double> const &init_list)
+{
+    for (size_t i = 0; i < dvec.Size(); ++i)
+    {
+        if (dvec[i] != *(init_list.begin() + i))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 TEST(TestCreateDVector, TestDefaultConstructor) 
 {
     DVector dvec1;
@@ -175,5 +187,14 @@ TEST(TestFunctionalityDVector, TestArithmeticOperators)
     DVector dvec7{10, 2};
     double resDot = dvec6.Dot(dvec7);
     EXPECT_EQ(resDot, 38);
+}
+
+TEST(TestFunctionalityDVector, TestAddSubNum)
+{
+    DVector dvec{1, 2, 3};
+    dvec.AddNum(2);
+    EXPECT_TRUE(CheckVector(dvec, {3, 4, 5}));
+    dvec.SubNum(3);
+    EXPECT_TRUE(CheckVector(dvec, {0, 1, 2}));
 }
 

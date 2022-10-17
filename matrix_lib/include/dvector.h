@@ -46,26 +46,35 @@ public:
     double const    &operator[](size_t index) const;
     double          &operator[](size_t index);
 
-    // немодифицирующие операции
+    /* ****** ЗАДАНИЕ 4 ****** */
     double  Dot(DVector const &other) const;
     DVector Dot(DMatrix const &matrix) const;
 
+
+    /* ****** ЗАДАНИЕ 5 ****** */
     // модифицирующие операции
     void AddNum(double value);
     void SubNum(double value);
+
+    /* ****** Slices ****** */
+    DVector operator()(size_t begin, size_t end, int step = 1) const;
 };
 
+// vector *= value
 DVector &operator/=(DVector &left, double value);
 DVector &operator*=(DVector &left, double value);
 
+// vector * value
 DVector  operator/(DVector left, double value);
 DVector  operator*(DVector left, double value);
 
+// vector += vector
 DVector &operator+=(DVector &left, DVector const &right);
 DVector &operator-=(DVector &left, DVector const &right);
 DVector &operator/=(DVector &left, DVector const &right);
 DVector &operator*=(DVector &left, DVector const &right);
 
+// vector + vector
 DVector  operator+(DVector left, DVector const &right);
 DVector  operator-(DVector left, DVector const &right);
 DVector  operator/(DVector left, DVector const &right);

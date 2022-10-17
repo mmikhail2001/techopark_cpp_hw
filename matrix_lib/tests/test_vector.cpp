@@ -2,17 +2,7 @@
 
 #include "dvector.h"
 
-static bool CheckVector(DVector const &dvec, std::initializer_list<double> const &init_list)
-{
-    for (size_t i = 0; i < dvec.Size(); ++i)
-    {
-        if (dvec[i] != *(init_list.begin() + i))
-        {
-            return false;
-        }
-    }
-    return true;
-}
+extern bool CompareVectors(DVector const &dvec, std::initializer_list<double> const &init_list);
 
 TEST(TestCreateDVector, TestDefaultConstructor) 
 {
@@ -22,10 +12,8 @@ TEST(TestCreateDVector, TestDefaultConstructor)
     dvec1.PushBack(3);
     dvec1.PushBack(4);
     EXPECT_EQ(dvec1.Size(), 4);   
-    EXPECT_EQ(dvec1.Capacity(), 4);   
-    EXPECT_EQ(dvec1[0], 1);   
-    EXPECT_EQ(dvec1[1], 2);   
-    EXPECT_EQ(dvec1[3], 4);   
+    EXPECT_EQ(dvec1.Capacity(), 4); 
+    EXPECT_TRUE(CompareVectors(dvec1, {1, 2, 3, 4}));   
 }
 
 TEST(TestCreateDVector, TestConstructorInitializerList) 
@@ -33,9 +21,7 @@ TEST(TestCreateDVector, TestConstructorInitializerList)
     DVector dvec2{5, 6, 7, 8, 9};
     EXPECT_EQ(dvec2.Size(), 5);   
     EXPECT_EQ(dvec2.Capacity(), 5);   
-    EXPECT_EQ(dvec2[0], 5);   
-    EXPECT_EQ(dvec2[1], 6);   
-    EXPECT_EQ(dvec2[4], 9);   
+    EXPECT_TRUE(CompareVectors(dvec2, {5, 6, 7, 8, 9}));  
 }
 
 TEST(TestCreateDVector, TestConstructorInputSizeAndFillValue) 
@@ -43,9 +29,7 @@ TEST(TestCreateDVector, TestConstructorInputSizeAndFillValue)
     DVector dvec3(10, 99);
     EXPECT_EQ(dvec3.Size(), 10);
     EXPECT_EQ(dvec3.Capacity(), 10);
-    EXPECT_EQ(dvec3[0], 99);   
-    EXPECT_EQ(dvec3[1], 99);   
-    EXPECT_EQ(dvec3[9], 99);   
+    EXPECT_TRUE(CompareVectors(dvec3, {99, 99, 99, 99, 99, 99, 99, 99, 99, 99}));    
 }
 
 TEST(TestCreateDVector, TestCopyConstructor) 
@@ -72,6 +56,8 @@ TEST(TestCreateDVector, TestConstructorPointersBeginEnd)
     DVector dvec1(dvec.CBegin(), dvec.CEnd());
     EXPECT_NE(dvec1.CBegin(), dvec.CBegin());
     EXPECT_EQ(dvec1.Size(), dvec.Size());
+
+    EXPECT_TRUE(CompareVectors(dvec1, {1, 2, 3, 4}));  
 }
 
 TEST(TestCreateDVector, TestImplicitConstructor)
@@ -160,10 +146,9 @@ TEST(TestFunctionalityDVector, TestArithmeticOperators)
     DVector dvec1{1, 2, 3};
     DVector dvec2{5, 6, 7};
     (dvec1 *= dvec2) += dvec1;
-    EXPECT_EQ(dvec1[0], 10);
-    EXPECT_EQ(dvec1[1], 24);
-    EXPECT_EQ(dvec1[2], 42);
 
+    EXPECT_TRUE(CompareVectors(dvec1, {10, 24, 42}));  
+    
     DVector dvec3{2, 4, 8};
     DVector dvec4{4, 5, 6};
 
@@ -177,7 +162,7 @@ TEST(TestFunctionalityDVector, TestArithmeticOperators)
         { 17; 42; 100 }
     */
 
-   dvec5 *= 2;
+    dvec5 *= 2;
 
     EXPECT_EQ(dvec5[0], 17 * 2);
     EXPECT_EQ(dvec5[1], 42 * 2);
@@ -193,8 +178,24 @@ TEST(TestFunctionalityDVector, TestAddSubNum)
 {
     DVector dvec{1, 2, 3};
     dvec.AddNum(2);
-    EXPECT_TRUE(CheckVector(dvec, {3, 4, 5}));
+    EXPECT_TRUE(CompareVectors(dvec, {3, 4, 5}));
     dvec.SubNum(3);
-    EXPECT_TRUE(CheckVector(dvec, {0, 1, 2}));
+    EXPECT_TRUE(CompareVectors(dvec, {0, 1, 2}));
+}
+
+TEST(TestFunctionalityDVector, TestSliceOperator)
+{
+    DVector dvec{1, 2, 3, 4, 5, 6, 7};
+
+    EXPECT_TRUE(CompareVectors(dvec(0, 5), {1, 2, 3, 4, 5}));
+    EXPECT_TRUE(CompareVectors(dvec(0, dvec.Size(), -1), {7, 6, 5, 4, 3, 2, 1}));
+
+    EXPECT_TRUE(CompareVectors(dvec(3, 4), {4}));
+    
+    EXPECT_THROW(dvec(4, 4), std::runtime_error);
+    EXPECT_THROW(dvec(5, 4), std::runtime_error);
+    EXPECT_THROW(dvec(1, 400), std::runtime_error);
+    EXPECT_THROW(dvec(20, 22), std::runtime_error);
+    
 }
 

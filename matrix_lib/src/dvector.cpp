@@ -4,18 +4,11 @@
 #include "dvector.h"
 #include "dmatrix.h"
 
-// static + const = const
-const std::string ERROR_ARITHMETIC = "Arithmetic operations on vectors of different size";
-const std::string ERROR_RANGE = "Index out of range";
-const std::string ERROR_EMPTY = "DVector is empty";
+extern const std::string ERROR_SIZE;
+extern const std::string ERROR_RANGE;
+extern const std::string ERROR_EMPTY;
 
-static void IsEqualSize(size_t size1, size_t size2, std::string const &msgError = "Exception")
-{
-    if (size1 != size2)
-    {
-        throw std::runtime_error(msgError);
-    }
-}
+extern void IsEqualSize(size_t size1, size_t size2, std::string const &msgError);
 
 void Print(DVector const &dvector, std::string const &message)
 {
@@ -103,7 +96,7 @@ double const &DVector::operator[](size_t index) const
 {
     if (index > m_size - 1)
     {
-        throw std::runtime_error(ERROR_RANGE);
+        throw std::runtime_error("operator[] : " + ERROR_RANGE);
     }
     return m_array[index];
 }
@@ -112,7 +105,7 @@ double &DVector::operator[](size_t index)
 {
     if (index > m_size - 1)
     {
-        throw std::runtime_error(ERROR_RANGE);
+        throw std::runtime_error("operator[] : " + ERROR_RANGE);
     }
     return m_array[index];
 }
@@ -135,7 +128,7 @@ void DVector::PopBack()
 {
     if (Empty())
     {
-        throw std::runtime_error("PopBack(): " + ERROR_EMPTY);
+        throw std::runtime_error("PopBack: " + ERROR_EMPTY);
     }
     --m_size;
 }
@@ -165,7 +158,7 @@ double DVector::Front() const
 {
     if (Empty())
     {
-        throw std::runtime_error("From(): " + ERROR_EMPTY);
+        throw std::runtime_error("From: " + ERROR_EMPTY);
     }
     return m_array[0];
 }
@@ -174,7 +167,7 @@ double DVector::Back() const
 {
     if (Empty())
     {
-        throw std::runtime_error("Back(): " + ERROR_EMPTY);
+        throw std::runtime_error("Back: " + ERROR_EMPTY);
     }
     return m_array[m_size - 1];
 }
@@ -231,118 +224,11 @@ double *DVector::Erase(double *it_value)
 
 }
 
-DVector &operator+=(DVector &left, DVector const &right) 
-{
-    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
-    for (size_t i = 0; i < left.Size(); ++i)
-    {
-        left[i] += right[i];
-    }
-    return left;
-}
-
-DVector &operator-=(DVector &left, DVector const &right) 
-{
-    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
-    for (size_t i = 0; i < left.Size(); ++i)
-    {
-        left[i] -= right[i];
-    }
-    return left;
-}
-
-DVector &operator*=(DVector &left, DVector const &right) 
-{
-    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
-    for (size_t i = 0; i < left.Size(); ++i)
-    {
-        left[i] *= right[i];
-    }
-    return left;
-}
-
-DVector &operator/=(DVector &left, DVector const &right) 
-{
-    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
-    for (size_t i = 0; i < left.Size(); ++i)
-    {
-        left[i] /= right[i];
-    }
-    return left;
-}
-
-// -------------------------------------------------------------------------
-
-DVector &operator*=(DVector &left, double value) 
-{
-    for (size_t i = 0; i < left.Size(); ++i)
-    {
-        left[i] *= value;
-    }
-    return left;
-}
-
-DVector &operator/=(DVector &left, double value) 
-{
-    for (size_t i = 0; i < left.Size(); ++i)
-    {
-        left[i] /= value;
-    }
-    return left;
-}
-
-DVector operator*(DVector left, double value)
-{
-    return left *= value;
-}
-
-DVector operator/(DVector left, double value)
-{
-    return left /= value;
-}
-
-// -------------------------------------------------------------------------
-
-DVector operator+(DVector left, DVector const &right)
-{
-    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
-    return left += right;
-}
-
-DVector operator-(DVector left, DVector const &right)
-{
-    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
-    return left -= right;
-}
-
-DVector operator*(DVector left, DVector const &right)
-{
-    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
-    return left *= right;
-}
-
-DVector operator/(DVector left, DVector const &right)
-{
-    IsEqualSize(left.Size(), right.Size(), ERROR_ARITHMETIC);
-    return left /= right;
-}
-
-double DVector::Dot(DVector const &other) const
-{
-    IsEqualSize(m_size, other.Size(), ERROR_ARITHMETIC);
-    double dotProduct = 0;
-    for (size_t i = 0; i < m_size; ++i)
-    {
-        dotProduct += m_array[i] * other[i];
-    } 
-    return dotProduct;
-}
-
 // подразуемевается что вектор-строка умножается на матрицу
 // результат - DVector
 DVector DVector::Dot(DMatrix const &matrix) const
 {
-    IsEqualSize(m_size, matrix.nRows(), ERROR_ARITHMETIC);
+    IsEqualSize(m_size, matrix.nRows(), ERROR_SIZE);
 
     DVector dvecRes(matrix.nCols());
     for (size_t i = 0; i < matrix.nCols(); ++i)
@@ -355,6 +241,45 @@ DVector DVector::Dot(DMatrix const &matrix) const
         dvecRes[i] = elem_i_j;
     }
     return dvecRes;
+}
+
+double DVector::Dot(DVector const &other) const
+{
+    IsEqualSize(m_size, other.Size(), "Dot:" + ERROR_SIZE);
+    double dotProduct = 0;
+    for (size_t i = 0; i < m_size; ++i)
+    {
+        dotProduct += m_array[i] * other[i];
+    } 
+    return dotProduct;
+}
+
+DVector DVector::operator()(size_t begin, size_t end, int step) const
+{
+    if (begin >= end)
+    {
+        throw std::runtime_error("operator(): " + ERROR_RANGE);  
+    }
+    if (begin >= m_size || end > m_size)
+    {
+        throw std::runtime_error("operator(): " + ERROR_RANGE);
+    }
+    DVector dvecSlice;
+    if (step > 0)
+    {
+        for (int i = begin; i < (int)end; i += step)
+        {
+            dvecSlice.PushBack(m_array[i]);
+        }
+    }
+    else if (step < 0)
+    {
+        for (int i = end - 1; i >= (int)begin; i += step)
+        {
+            dvecSlice.PushBack(m_array[i]);
+        }
+    }
+    return dvecSlice;
 }
 
 void DVector::grow()

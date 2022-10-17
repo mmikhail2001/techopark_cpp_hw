@@ -2,13 +2,15 @@
 
 #include "dmatrix.h"
 
-bool CheckMatrix(DMatrix const &matrix, std::initializer_list<std::initializer_list<double>> const &init_list)
+const double EPS = 0.000001;
+
+bool CompareMatrices(DMatrix const &matrix, std::initializer_list<std::initializer_list<double>> const &init_list)
 {
     for (size_t i = 0; i < matrix.nRows(); ++i)
     {
         for (size_t j = 0; j < matrix.nCols(); ++j)
         {
-            if (matrix[i][j] - *((init_list.begin() + i)->begin() + j) > 0.000001)
+            if (matrix[i][j] - *((init_list.begin() + i)->begin() + j) > EPS)
             {
                 return false;
             }
@@ -17,11 +19,11 @@ bool CheckMatrix(DMatrix const &matrix, std::initializer_list<std::initializer_l
     return true;
 }
 
-static bool CheckVector(DVector const &dvec, std::initializer_list<double> const &init_list)
+bool CompareVectors(DVector const &dvec, std::initializer_list<double> const &init_list)
 {
     for (size_t i = 0; i < dvec.Size(); ++i)
     {
-        if (dvec[i] - *(init_list.begin() + i) > 0.000001)
+        if (dvec[i] - *(init_list.begin() + i) > EPS)
         {
             return false;
         }
@@ -71,18 +73,30 @@ TEST(TestCreateDMatrix, TestConstructorsSpecifyRowOrCol)
     EXPECT_EQ(dmat.nRows(), 1);
     EXPECT_EQ(dmat.nCols(), 4);
 
-    EXPECT_TRUE(CheckMatrix(dmat, { 
+    EXPECT_TRUE(CompareMatrices(dmat, { 
             {2, 4, 6, 8}
         }));
 
     dmat = DMatrix(DVector{2, 4, 6, 8}, ORIENT::COL);
     EXPECT_EQ(dmat.nRows(), 4);
     EXPECT_EQ(dmat.nCols(), 1);
-    EXPECT_TRUE(CheckMatrix(dmat, { 
+    EXPECT_TRUE(CompareMatrices(dmat, { 
             {2},
             {4},
             {6},
             {8}
+        }));
+}
+
+TEST(TestCreateDMatrix, TestConstructorsTemplate) 
+{
+    DMatrix dmat = DMatrix::Create<2, 3>(3);
+    EXPECT_EQ(dmat.nRows(), 2);
+    EXPECT_EQ(dmat.nCols(), 3);
+
+    EXPECT_TRUE(CompareMatrices(dmat, { 
+            {3, 3, 3},
+            {3, 3, 3}
         }));
 }
 
@@ -130,7 +144,7 @@ TEST(TestFunctionalityDMatrix, TestPushPopRow)
     EXPECT_THROW(dmat.PushRowBack(dvec2), std::runtime_error);
 
     
-    EXPECT_TRUE(CheckMatrix(dmat, { 
+    EXPECT_TRUE(CompareMatrices(dmat, { 
             {1, 2, 3},
             {4, 5, 6}
         }));
@@ -209,7 +223,7 @@ TEST(TestFunctionalityDMatrix, TestPushPopMix)
     dmat.PushColBack({7, 7});
     dmat.PushRowBack({8, 8, 8, 100});
 
-    EXPECT_TRUE(CheckMatrix(dmat, { 
+    EXPECT_TRUE(CompareMatrices(dmat, { 
             {1, 2, 3, 7},
             {4, 5, 6, 7},
             {8, 8, 8, 100},
@@ -235,7 +249,7 @@ TEST(TestFunctionalityDMatrix, TestPushPopMix)
     dmat = {{1, 2, 3, 4, 5, 6, 7}};
     dmat.PushColBack({8});
 
-    EXPECT_TRUE(CheckMatrix(dmat, { 
+    EXPECT_TRUE(CompareMatrices(dmat, { 
             {1, 2, 3, 4, 5, 6, 7, 8}
         }));
 
@@ -322,7 +336,7 @@ TEST(TestFunctionalityDMatrix, TestArithmeticOperators)
     EXPECT_THROW(dmat3 -= dmatErr2, std::runtime_error);
     EXPECT_THROW(dmat3 / dmatErr3, std::runtime_error);
 
-    EXPECT_TRUE(CheckMatrix(dmat3, { 
+    EXPECT_TRUE(CompareMatrices(dmat3, { 
             {13, 16, 19}, 
             {26, 29, 32} 
             }));
@@ -346,7 +360,7 @@ TEST(TestFunctionalityDMatrix, TestDotProductOfMatrices)
     EXPECT_EQ(dmatRes.nRows(), 2);
     EXPECT_EQ(dmatRes.nCols(), 2);
 
-    EXPECT_TRUE(CheckMatrix(dmatRes, { {28, 34}, {64, 79} }));
+    EXPECT_TRUE(CompareMatrices(dmatRes, { {28, 34}, {64, 79} }));
 }
 
 
@@ -362,13 +376,13 @@ TEST(TestFunctionalityDMatrix, TestDotProductBetweenMatrixAndVector)
     DVector dvec1{1, 2, 3};
     DVector dvecErr{1, 2, 3, 4};
 
-    EXPECT_TRUE(CheckVector(dmat1.Dot(dvec1), { 14, 32 }));
+    EXPECT_TRUE(CompareVectors(dmat1.Dot(dvec1), { 14, 32 }));
     EXPECT_THROW(dmat1.Dot(dvecErr), std::runtime_error);
 
     // vector * matrix
 
     DVector dvec2{1, 2};
-    EXPECT_TRUE(CheckVector(dvec2.Dot(dmat1), { 9, 12, 15 }));
+    EXPECT_TRUE(CompareVectors(dvec2.Dot(dmat1), { 9, 12, 15 }));
 
     DMatrix dmatErr{
         {1, 2},
@@ -386,21 +400,21 @@ TEST(TestFunctionalityDMatrix, TestAddSubVectorAndNum)
     };
 
     dmat.AddNum(1);
-    EXPECT_TRUE(CheckMatrix(dmat, {
+    EXPECT_TRUE(CompareMatrices(dmat, {
         {2, 3, 4},
         {5, 6, 7}
     }));
 
     DVector dvec1{10, 15};
     dmat.AddVec(dvec1, ORIENT::COL);
-    EXPECT_TRUE(CheckMatrix(dmat, {
+    EXPECT_TRUE(CompareMatrices(dmat, {
         {12, 13, 14},
         {20, 21, 22}
     }));
 
     DVector dvec2{10, 10, 0};
     dmat.SubVec(dvec2, ORIENT::ROW); // but ORIENT::ROW by default
-    EXPECT_TRUE(CheckMatrix(dmat, {
+    EXPECT_TRUE(CompareMatrices(dmat, {
         {2,  3,  14},
         {10, 11, 22}
     }));
@@ -418,7 +432,7 @@ TEST(TestFunctionalityDMatrix, TestTransponse)
     };
     DMatrix dmatT = dmat.T();
 
-    EXPECT_TRUE(CheckMatrix(dmatT, {
+    EXPECT_TRUE(CompareMatrices(dmatT, {
         {1,  4,  7},
         {2, 5, 8},
         {3, 6, 9}
@@ -436,12 +450,12 @@ TEST(TestFunctionalityDMatrix, TestEraseByIndexRow)
         {7, 8, 9}
     };
     dmat.EraseByIndex(0);
-    EXPECT_TRUE(CheckMatrix(dmat, {
+    EXPECT_TRUE(CompareMatrices(dmat, {
         {4, 5, 6},
         {7, 8, 9}
     }));
     dmat.EraseByIndex(1);
-    EXPECT_TRUE(CheckMatrix(dmat, {
+    EXPECT_TRUE(CompareMatrices(dmat, {
         {4, 5, 6}
     }));
 
@@ -467,7 +481,7 @@ TEST(TestFunctionalityDMatrix, TestEraseByIndexCol)
     };
 
     dmat.EraseByIndex(1, ORIENT::COL);
-    EXPECT_TRUE(CheckMatrix(dmat, {
+    EXPECT_TRUE(CompareMatrices(dmat, {
         {1, 3},
         {4, 6},
         {7, 9}
@@ -477,14 +491,14 @@ TEST(TestFunctionalityDMatrix, TestEraseByIndexCol)
     EXPECT_EQ(dmat.nCols(), 2);
 
     dmat.EraseByIndex(0, ORIENT::COL);
-    EXPECT_TRUE(CheckMatrix(dmat, {
+    EXPECT_TRUE(CompareMatrices(dmat, {
         {3},
         {6},
         {9}
     }));
 
     dmat.EraseByIndex(0, ORIENT::COL);
-    EXPECT_TRUE(CheckMatrix(dmat, {{}}));
+    EXPECT_TRUE(CompareMatrices(dmat, {{}}));
 
     EXPECT_THROW(dmat.EraseByIndex(0, ORIENT::COL), std::runtime_error);
     EXPECT_THROW(dmat.EraseByIndex(200, ORIENT::COL), std::runtime_error);
@@ -527,7 +541,7 @@ TEST(TestFunctionalityDMatrix, TestInvertibleMatrix)
     EXPECT_EQ(dmatInv.nRows(), 3);
     EXPECT_EQ(dmatInv.nCols(), 3);
 
-    EXPECT_TRUE(CheckMatrix(dmatInv, {
+    EXPECT_TRUE(CompareMatrices(dmatInv, {
         {0, 2, -1},
         {-1, 5, -3},
         {-1, 8, -5}
@@ -542,7 +556,7 @@ TEST(TestFunctionalityDMatrix, TestInvertibleMatrix)
 
     dmatInv = dmat2.Inv();
 
-    EXPECT_TRUE(CheckMatrix(dmatInv, {
+    EXPECT_TRUE(CompareMatrices(dmatInv, {
         {11./6, 1./3, -1./2, -2./3},
         {1./3, -1./3, 0, 0},
         {-5./6, 0, 1./2, 1./3},
@@ -562,9 +576,158 @@ TEST(TestFunctionalityDMatrix, TestInvertibleMatrix)
 
     EXPECT_THROW(dmatErr1.Inv(), std::runtime_error);
     EXPECT_TRUE(dmatErr2.Inv().Empty());
-
-
 }
 
+TEST(TestFunctionalityDMatrix, TestSliceOperatorRow)
+{
+    DMatrix dmat = {
+        {1,   2,  3,  4,  5},
+        {6,   7,  8,  9,  10},
+        {11,  12, 13, 14, 15},
+        {16,  17, 18, 19, 20},
+        {21,  22, 23, 24, 25}
+    };
 
+    DMatrix dmatSlice1 = dmat(1, 3);
+    EXPECT_TRUE(CompareMatrices(dmatSlice1, {
+        {6,   7,  8,  9,  10},
+        {11,  12, 13, 14, 15}
+    }));
+
+    DMatrix dmatSlice2 = dmat(0, dmat.nRows());
+
+    EXPECT_TRUE(CompareMatrices(dmatSlice2, {
+        {1,   2,  3,  4,  5},
+        {6,   7,  8,  9,  10},
+        {11,  12, 13, 14, 15},
+        {16,  17, 18, 19, 20},
+        {21,  22, 23, 24, 25}
+    }));
+
+    DMatrix dmatSlice3 = dmat(0, dmat.nRows(), 2);
+
+    EXPECT_TRUE(CompareMatrices(dmatSlice3, {
+        {1,   2,  3,  4,  5},
+        {11,  12, 13, 14, 15},
+        {21,  22, 23, 24, 25}
+    }));
+
+    DMatrix dmatSlice4 = dmat(0, dmat.nRows(), -2);
+
+    EXPECT_TRUE(CompareMatrices(dmatSlice4, {
+        {21,  22, 23, 24, 25},
+        {11,  12, 13, 14, 15},
+        {1,   2,  3,  4,  5}
+    }));
+
+    EXPECT_THROW(dmat(4, 1), std::runtime_error);
+    EXPECT_THROW(dmat(2, 2), std::runtime_error);
+    EXPECT_THROW(dmat(100, 103), std::runtime_error);
+    EXPECT_THROW(dmat(0, 100), std::runtime_error);
+
+    DMatrix dmatSlice5 = dmat(0, 4, 0);
+    EXPECT_TRUE(CompareMatrices(dmatSlice5, { {} }));
+}
+
+TEST(TestFunctionalityDMatrix, TestSliceOperatorCol)
+{
+    DMatrix dmat = {
+        {1,   2,  3,  4,  5},
+        {6,   7,  8,  9,  10},
+        {11,  12, 13, 14, 15},
+        {16,  17, 18, 19, 20},
+        {21,  22, 23, 24, 25}
+    };
+
+    DMatrix dmatSlice1 = dmat(1, 3, 1, COL);
+    EXPECT_TRUE(CompareMatrices(dmatSlice1, {
+        {2,  3  },
+        {7,  8  },
+        {12, 13 },
+        {17, 18 },
+        {22, 23 }
+    }));
+
+    DMatrix dmatSlice2 = dmat(1, 4, 2, COL);
+
+    EXPECT_TRUE(CompareMatrices(dmatSlice2, {
+        {2,  4  },
+        {7,  9  },
+        {12, 14 },
+        {17, 19 },
+        {22, 24 }
+    }));
+
+    DMatrix dmatSlice3 = dmat(0, dmat.nCols(), -1, COL);
+
+    EXPECT_TRUE(CompareMatrices(dmatSlice3, {
+        {5, 4, 3, 2, 1},
+        {10, 9, 8, 7, 6},
+        {15, 14, 13, 12, 11},
+        {20, 19, 18, 17, 16},
+        {25, 24, 23, 22, 21}
+    }));
+
+    DMatrix dmatSlice4 = dmat(4, dmat.nCols(), 1, COL);
+
+    EXPECT_TRUE(CompareMatrices(dmatSlice4, {
+        {5},
+        {10},
+        {15},
+        {20},
+        {25}
+    }));
+}
+
+TEST(TestFunctionalityDMatrix, TestSliceOperatorRowColMix)
+{
+    DMatrix dmat = {
+        {1,   2,  3,  4,  5},
+        {6,   7,  8,  9,  10},
+        {11,  12, 13, 14, 15},
+        {16,  17, 18, 19, 20},
+        {21,  22, 23, 24, 25}
+    };
+
+    DMatrix dmatSlice1 = dmat(0, 3)(1, 3);
+
+    EXPECT_TRUE(CompareMatrices(dmatSlice1, {
+        {6,   7,  8,  9,  10},
+        {11,  12, 13, 14, 15}
+    }));
+
+    // ROW = 0, COL = 1
+    DMatrix dmatSlice2 = dmat(0, 4, 1, 0)(1, 3, 1, 1);
+    EXPECT_TRUE(CompareMatrices(dmatSlice2, {
+        {2, 3},
+        {7, 8},
+        {12, 13},
+        {17, 18}
+    }));
+
+    DMatrix dmatSlice3 = dmat(1, 2, 1, COL)(3, 4);
+    EXPECT_TRUE(CompareMatrices(dmatSlice2, {
+        {17}
+    }));
+}
+
+TEST(TestFunctionalityDMatrix, TestSliceCallMethod)
+{
+    DMatrix dmat = {
+        {1,   2,  3,  4,  5},
+        {6,   7,  8,  9,  10},
+        {11,  12, 13, 14, 15},
+        {16,  17, 18, 19, 20},
+        {21,  22, 23, 24, 25}
+    };
+
+    DMatrix dmatSlice1 = dmat.SliceRow(0, 4).SliceCol(1, 5, 2);
+
+    EXPECT_TRUE(CompareMatrices(dmatSlice1, {
+        {2,     4 },
+        {7,     9 },
+        {12,    14},
+        {17,    19}
+    }));
+}
 

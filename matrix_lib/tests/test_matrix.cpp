@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <cmath>
 
 #include "dmatrix.h"
 
@@ -10,7 +11,7 @@ bool CompareMatrices(DMatrix const &matrix, std::initializer_list<std::initializ
     {
         for (size_t j = 0; j < matrix.nCols(); ++j)
         {
-            if (matrix[i][j] - *((init_list.begin() + i)->begin() + j) > EPS)
+            if (std::abs(matrix[i][j] - *((init_list.begin() + i)->begin() + j)) > EPS)
             {
                 return false;
             }
@@ -23,7 +24,7 @@ bool CompareVectors(DVector const &dvec, std::initializer_list<double> const &in
 {
     for (size_t i = 0; i < dvec.Size(); ++i)
     {
-        if (dvec[i] - *(init_list.begin() + i) > EPS)
+        if (std::abs(dvec[i] - *(init_list.begin() + i)) > EPS)
         {
             return false;
         }
@@ -706,7 +707,7 @@ TEST(TestFunctionalityDMatrix, TestSliceOperatorRowColMix)
     }));
 
     DMatrix dmatSlice3 = dmat(1, 2, 1, COL)(3, 4);
-    EXPECT_TRUE(CompareMatrices(dmatSlice2, {
+    EXPECT_TRUE(CompareMatrices(dmatSlice3, {
         {17}
     }));
 }

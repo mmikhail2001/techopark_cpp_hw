@@ -1,7 +1,6 @@
 on: push
 
 env:
-  EXE_FILE: main
   LIB_NAME: matrix_lib
 
 jobs:
@@ -11,36 +10,34 @@ jobs:
     steps:
     - uses: actions/checkout@v2 
     - run: make build
-    - run: ls
-    - run: ls build/
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: executable_file
         path: build/main
-  # test:
-  #   runs-on: ubuntu-latest
-  #   container: leshiy1295/gcc_linters_valgrind_cmake_gtest
-  #   needs: [build]
-  #   steps:
-  #     - uses: actions/checkout@v2 
-  #     - name: install lcov
-  #       run: apt-get install lcov -y
-  #     - name: Build, run and test
-  #       run: |
-  #         make build TEST_OPT=ON
-  #         make run
-  #         make test
-  #     - name: Test coverage
-  #       run: |
-  #         cd build && lcov -t "tests_matrix" -o coverage.info -c -d ${LIB_NAME}/CMakeFiles
-  #         genhtml -o report coverage.info
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: coverage-info
-  #         path: build/report
-  #     - name: launch valgrind
-  #       run: |
-  #         cd build
-  #         valgrind --tool=memcheck --leak-check=yes ./${EXE_FILE}
+  test:
+    runs-on: ubuntu-latest
+    container: leshiy1295/gcc_linters_valgrind_cmake_gtest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2 
+      - name: install lcov
+        run: apt-get install lcov -y
+      - name: Build, run and test
+        run: |
+          make build TEST_OPT=ON
+          make run
+          make test
+      - name: Test coverage
+        run: |
+          cd build && lcov -t "tests_matrix" -o coverage.info -c -d ${LIB_NAME}/CMakeFiles
+          genhtml -o report coverage.info
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-info
+          path: build/report
+      - name: launch valgrind
+        run: |
+          cd build
+          valgrind --tool=memcheck --leak-check=yes ./main

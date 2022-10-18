@@ -17,7 +17,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: executable_file
-        path: build/${EXE_FILE}
+        path: build/main
   # test:
   #   runs-on: ubuntu-latest
   #   container: leshiy1295/gcc_linters_valgrind_cmake_gtest

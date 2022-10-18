@@ -8,7 +8,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: leshiy1295/gcc_linters_valgrind_cmake_gtest
-    # needs: [check]
     steps:
     - uses: actions/checkout@v2 
     - run: make build
@@ -20,14 +19,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container: leshiy1295/gcc_linters_valgrind_cmake_gtest
-    # needs: [build]
+    needs: [build]
     steps:
       - uses: actions/checkout@v2 
       - name: install lcov
         run: apt-get install lcov -y
-      - run: make build TEST_OPT=ON
-      - run: make run
-      - run: make test
+      - name: Build, run and test
+        run: |
+          make build TEST_OPT=ON
+          make run
+          make test
       - name: Test coverage
         run: |
           cd build && lcov -t "tests_matrix" -o coverage.info -c -d ${LIB_NAME}/CMakeFiles

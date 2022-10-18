@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0.0)
 project(matrix_lib)
 
 set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -fPIC -O0")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O0")
 
 if(TEST_OPT)

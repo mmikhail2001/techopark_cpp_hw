@@ -20,7 +20,15 @@ void IsEqualSize(size_t size1, size_t size2, std::string const &msgError = "Exce
 DMatrix::DMatrix(size_t nRows, size_t nCols, double fill_value) : m_nRows(nRows), m_nCols(nCols), m_capacity(nRows)
 {
     // можно ли указать конкретный конструктор для каждого элемента дин. массива?
-    m_matrix = new DVector[m_nRows]();
+    try
+    {
+        m_matrix = new DVector[m_nRows]();
+    }
+    catch(const std::bad_alloc& e)
+    {
+        std::cout << "Allocation failed: " << e.what() << std::endl;
+        throw;
+    } 
     for (size_t i = 0; i < m_nRows; ++i)
     {
         m_matrix[i] = DVector(m_nCols, fill_value);
@@ -37,7 +45,15 @@ DMatrix::DMatrix(std::initializer_list<std::initializer_list<double>> const &ini
     {
         throw std::runtime_error("DMatrix: " + ERROR_LENGTH);
     }
-    m_matrix = new DVector[m_nRows]();
+    try
+    {
+        m_matrix = new DVector[m_nRows]();
+    }
+    catch(const std::bad_alloc& e)
+    {
+        std::cout << "Allocation failed: " << e.what() << std::endl;
+        throw;
+    } 
     int i = 0;
     for (auto row = init_list.begin(); row < init_list.end(); ++row)
     {
@@ -48,7 +64,15 @@ DMatrix::DMatrix(std::initializer_list<std::initializer_list<double>> const &ini
 
 DMatrix::DMatrix(DMatrix const &other) : m_nRows(other.nRows()), m_nCols(other.nCols()), m_capacity(other.nRows())
 {
-    m_matrix = new DVector[other.nRows()]();
+    try
+    {
+        m_matrix = new DVector[other.nRows()]();
+    }
+    catch(const std::bad_alloc& e)
+    {
+        std::cout << "Allocation failed: " << e.what() << std::endl;
+        throw;
+    } 
     for (size_t i = 0; i < other.m_nRows; ++i)
     {
         m_matrix[i] = DVector(other[i].CBegin(), other[i].CEnd());
@@ -100,14 +124,30 @@ DMatrix::DMatrix(DVector const &dvec, ORIENT orientation)
 {
     if (orientation == ORIENT::ROW)
     {
-        m_matrix = new DVector[1]{ DVector(dvec) };
+        try
+        {
+            m_matrix = new DVector[1]{ DVector(dvec) };
+        }
+        catch(const std::bad_alloc& e)
+        {
+            std::cout << "Allocation failed: " << e.what() << std::endl;
+            throw;
+        } 
         m_nRows = 1;
         m_nCols = dvec.Size();
         m_capacity = m_nRows;
     }
     else
     {
-        m_matrix = new DVector[dvec.Size()]();
+        try
+        {
+            m_matrix = new DVector[dvec.Size()]();
+        }
+        catch(const std::bad_alloc& e)
+        {
+            std::cout << "Allocation failed: " << e.what() << std::endl;
+            throw;
+        } 
         for (size_t i = 0; i < dvec.Size(); ++i)
         {
             m_matrix[i] = DVector(1, dvec[i]);
@@ -218,7 +258,15 @@ void DMatrix::PushColBack(DVector const &dvec)
     }
     if (m_nRows == 0)
     {
-        m_matrix = new DVector[dvec.Size()]();
+        try
+        {
+            m_matrix = new DVector[dvec.Size()]();
+        }
+        catch(const std::bad_alloc& e)
+        {
+            std::cout << "Allocation failed: " << e.what() << std::endl;
+            throw;
+        } 
         m_capacity = dvec.Size();
     }
     m_nRows = dvec.Size();
@@ -237,7 +285,15 @@ void DMatrix::PushColBack(std::initializer_list<double> const &init_list)
     }
     if (m_nRows == 0)
     {
-        m_matrix = new DVector[init_list.size()]();
+        try
+        {
+            m_matrix = new DVector[init_list.size()]();
+        }
+        catch(const std::bad_alloc& e)
+        {
+            std::cout << "Allocation failed: " << e.what() << std::endl;
+            throw;
+        } 
         m_capacity = init_list.size();
     }
     m_nRows = init_list.size();
@@ -428,7 +484,16 @@ double DMatrix::Det() const
     else
     {
         double res = 0;
-        DMatrix *dmats = new DMatrix[m_nCols](); 
+        DMatrix *dmats = nullptr;
+        try
+        {
+            dmats = new DMatrix[m_nCols](); 
+        }
+        catch(const std::bad_alloc& e)
+        {
+            std::cout << "Allocation failed: " << e.what() << std::endl;
+            throw;
+        } 
         // определитель матрицы через разложение по первой строке
         for (size_t i = 0; i < m_nCols; ++i)
         {
@@ -588,7 +653,16 @@ DMatrix DMatrix::SliceCol(size_t begin, size_t end, int step) const
 void DMatrix::grow()
 {
     size_t new_capacity = std::max(1, static_cast<int>(m_capacity * 2));
-    DVector *new_matrix = new DVector[new_capacity]();
+    DVector *new_matrix = nullptr;
+    try
+    {
+        new_matrix = new DVector[new_capacity]();
+    }
+    catch(const std::bad_alloc& e)
+    {
+        std::cout << "Allocation failed: " << e.what() << std::endl;
+        throw;
+    }
     std::copy(m_matrix, &m_matrix[m_nRows - 1] + 1, new_matrix);
     delete[] m_matrix;
     m_matrix = new_matrix;

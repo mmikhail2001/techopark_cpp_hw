@@ -99,6 +99,13 @@ TEST(TestCreateDMatrix, TestConstructorsTemplate)
             {3, 3, 3},
             {3, 3, 3}
         }));
+
+    EXPECT_THROW((DMatrix::Create<0, 3>()), std::runtime_error);
+    EXPECT_THROW((DMatrix::Create<1, 0>(10)), std::runtime_error);
+
+    DMatrix dmat2 = DMatrix::Create<0, 0>();
+    EXPECT_EQ(dmat2.nRows(), 0);
+    EXPECT_EQ(dmat2.nCols(), 0);
 }
 
 TEST(TestCreateDMatrix, TestOperatorAssign) 

@@ -5,6 +5,7 @@
 enum class  ORIENT  { ROW = 0, COL };
 enum        SLICE   { ROW = 0, COL };
 
+// Matrix of doubles number
 class DMatrix
 {
 private:
@@ -25,11 +26,9 @@ public:
     DMatrix &operator=(DMatrix other);
     ~DMatrix();
 
-    template <size_t rows = 0, size_t cols = 0> 
-    static DMatrix Create(double fill_value = 0)
-    {
-        return DMatrix(rows, cols, fill_value);
-    }
+    /* ****** Задание размера через шаблон *******/
+    template <size_t rows, size_t cols> 
+    static DMatrix Create(double fill_value = 0);
 
 public:
     void    Clear();
@@ -78,9 +77,7 @@ public:
     DVector          &operator[](size_t index);
 
     /*
-        Slicing как в NumPy C++
-        matrix({1, 4}, {2, 5}) - нельзя отдельно по столбцам
-    
+        Пояснение:
         enum SLICE {ROW = 0, COL}, чтобы 
             1. не писать класс, если в параметрах ROW / COL
             2. кастилось к enum SLICE, если в параметрах 0 / 1
@@ -124,3 +121,13 @@ DMatrix  operator/(DMatrix left, DMatrix const &right);
 DMatrix  operator*(DMatrix left, DMatrix const &right);
 
 void Print(DMatrix const &matrix, std::string const &msg = std::string{});
+
+template <size_t rows, size_t cols>
+DMatrix DMatrix::Create(double fill_value)
+{
+    if ((rows == 0) ^ (cols == 0))
+    {
+        throw std::runtime_error("Creation is impossible");
+    }
+    return DMatrix(rows, cols, fill_value);
+}

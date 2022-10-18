@@ -25,7 +25,15 @@ void Print(DVector const &dvector, std::string const &message)
 
 DVector::DVector(size_t size, double fill_value) : m_size(size), m_capacity(size)
 {
-    m_array = new double[m_capacity]();
+    try
+    {
+        m_array = new double[m_capacity]();
+    }
+    catch(const std::bad_alloc& e)
+    {
+        std::cout << "Allocation failed: " << e.what() << std::endl;
+        throw;
+    }
     if (fill_value)
     {
         Fill(fill_value);
@@ -34,7 +42,15 @@ DVector::DVector(size_t size, double fill_value) : m_size(size), m_capacity(size
 
 DVector::DVector(std::initializer_list<double> const &init_list) : m_size(init_list.size()), m_capacity(init_list.size())
 {
-    m_array = new double[init_list.size()]();
+    try
+    {
+        m_array = new double[init_list.size()]();
+    }
+    catch(const std::bad_alloc& e)
+    {
+        std::cout << "Allocation failed: " << e.what() << std::endl;
+        throw;
+    }
     std::copy(init_list.begin(), init_list.end(), m_array);
 }
 
@@ -44,7 +60,15 @@ DVector::DVector(DVector const &other)
     {
         delete[] m_array;
     }
-    m_array = new double[other.m_capacity]();
+    try
+    {
+        m_array = new double[other.m_capacity]();
+    }
+    catch(const std::bad_alloc& e)
+    {
+        std::cout << "Allocation failed: " << e.what() << std::endl;
+        throw;
+    }
     m_capacity = other.m_capacity;
     m_size = other.m_size;
     std::copy(other.m_array, &other.m_array[other.m_size - 1] + 1, m_array);
@@ -58,7 +82,15 @@ DVector::DVector(DVector &&other) : m_array(nullptr), m_capacity(0), m_size(0)
 DVector::DVector(const double *begin, const double *end)
 {
     ptrdiff_t length = std::distance(begin, end);
-    m_array = new double[length]();
+    try
+    {
+        m_array = new double[length]();
+    }
+    catch(const std::bad_alloc& e)
+    {
+        std::cout << "Allocation failed: " << e.what() << std::endl;
+        throw;
+    }
     m_size = m_capacity = length;
     std::copy(begin, end, m_array);
 }
@@ -285,7 +317,16 @@ DVector DVector::operator()(size_t begin, size_t end, int step) const
 void DVector::grow()
 {
     size_t new_capacity = std::max(1, static_cast<int>(m_capacity * 2));
-    double *new_array = new double[new_capacity]();
+    double *new_array = nullptr;
+    try
+    {
+        new_array = new double[new_capacity]();
+    }
+    catch(const std::bad_alloc& e)
+    {
+        std::cout << "Allocation failed: " << e.what() << std::endl;
+        throw;
+    }   
     std::copy(m_array, &m_array[m_size - 1] + 1, new_array);
     delete[] m_array;
     m_array = new_array;

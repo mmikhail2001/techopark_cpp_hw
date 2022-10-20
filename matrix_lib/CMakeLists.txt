@@ -17,7 +17,19 @@ file(GLOB_RECURSE SOURCES       ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE HEADERS       ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB INCLUDE_DIRS  ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+# find_package(Boost COMPONENTS system REQUIRED)
+
+# if(NOT Boost_FOUND)
+#     message("Not found Boost")
+#     return()
+# endif()
+
+# Boost_VERSION_MACRO
+# Boost_LIBRARY_DIR
+# Boost_INCLUDE_DIR
+
 add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 
 # без   PARENT_SCOPE для тестов

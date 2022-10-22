@@ -1,0 +1,39 @@
+on: push
+
+env:
+  LIB_NAME: matrix_lib
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: leshiy1295/gcc_linters_valgrind_cmake_gtest
+    steps:
+    - uses: actions/checkout@v2 
+    - run: make build
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: executable_file
+        path: build/main
+  test:
+    runs-on: ubuntu-latest
+    container: leshiy1295/gcc_linters_valgrind_cmake_gtest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2 
+      - name: install lcov
+        run: apt-get install lcov -y
+      - name: Build, run and test
+        run: |
+          make build TEST_OPT=ON
+          make run
+          make test
+      - name: Test coverage
+        run: make coverage
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-info
+          path: build/report
+      - name: launch valgrind
+        run: make valgrind_tests

@@ -1,9 +1,10 @@
-# чувствителен к изменению исходных файлов
-# игнорирует изменения файла CMakeLists.txt (если make run)
-
-LIB = matrix_lib
+LIB_DIR = matrix_lib
 BUILD_DIR = build
+
 TARGET = ./${BUILD_DIR}/main
+TESTS_EXE = tests
+TESTS_DIR = tests
+
 TEST_OPT 		= OFF
 DEBUG_OPT 		= OFF
 
@@ -16,13 +17,18 @@ build: clean
 clean: 
 	(rm -r ${BUILD_DIR} 2>/dev/null) || exit 0 
 
-# выполняется, если проект собран
 run:
 	cd ${BUILD_DIR} && $(MAKE) --no-print-directory
 	${TARGET}
 
-# выполняется, если проект собран
-test: ${TARGET}
-	./${BUILD_DIR}/${LIB}/tests/tests
-# cd ${BUILD_DIR}/${LIB} && ctest
+test:
+	./${BUILD_DIR}/${LIB_DIR}/tests/tests
+
+coverage:
+	cd ${BUILD_DIR} && lcov -t "testing_${LIB_DIR}" -o coverage.info -c -d ${LIB_DIR}/CMakeFiles \
+	&& lcov --remove coverage.info -o coverage.info '/usr/include/*' '/usr/lib/*' \
+	&& genhtml -o report coverage.info
+
+valgrind_tests:
+	valgrind --tool=memcheck --leak-check=yes --error-exitcode=1 ./${BUILD_DIR}/${LIB_DIR}/${TESTS_DIR}/${TESTS_EXE}
 

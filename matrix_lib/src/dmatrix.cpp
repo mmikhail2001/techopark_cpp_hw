@@ -9,7 +9,7 @@ const std::string ERROR_LENGTH              = "In a matrix, all row and column l
 const std::string ERROR_RECT_MATRIX         = "Matrix is not square";
 
 // проверка на равный размер, иначе исключение
-void IsEqualSize(size_t size1, size_t size2, std::string const &msgError = "Exception")
+void CheckEqualSize(size_t size1, size_t size2, std::string const &msgError = "Exception")
 {
     if (size1 != size2)
     {
@@ -216,7 +216,8 @@ void DMatrix::PushRowBack(DVector const &dvec)
     {
         grow();
     }
-    m_matrix[m_nRows++] = dvec;
+    m_matrix[m_nRows] = dvec;
+    ++m_nRows;
 }
 
 void DMatrix::PushRowBack(std::initializer_list<double> const &init_list)
@@ -230,7 +231,8 @@ void DMatrix::PushRowBack(std::initializer_list<double> const &init_list)
     {
         grow();
     }
-    m_matrix[m_nRows++] = DVector(init_list.begin(), init_list.end());
+    m_matrix[m_nRows] = DVector(init_list.begin(), init_list.end());
+    ++m_nRows;
 }
 
 void DMatrix::PopRowBack()
@@ -239,7 +241,7 @@ void DMatrix::PopRowBack()
     {
         throw std::runtime_error("PopRowBack: " + ERROR_EMPTY);
     }
-    m_matrix[--m_nRows].~DVector();
+    --m_nRows;
     if (m_nRows == 0)
     {
         if (m_matrix)
@@ -366,7 +368,7 @@ DVector DMatrix::GetCol(size_t index) const
 
 DMatrix DMatrix::Dot(DMatrix const &other) const
 {
-    IsEqualSize(m_nCols, other.nRows(), "Dot: " + ERROR_SIZE);
+    CheckEqualSize(m_nCols, other.nRows(), "Dot: " + ERROR_SIZE);
 
     DMatrix dmat(m_nRows, other.nCols());
     for (size_t i = 0; i < m_nRows; ++i)
@@ -388,7 +390,7 @@ DMatrix DMatrix::Dot(DMatrix const &other) const
 // результат - DVector
 DVector DMatrix::Dot(DVector const &dvec) const
 {
-    IsEqualSize(m_nCols, dvec.Size(), "Dot: " + ERROR_SIZE);
+    CheckEqualSize(m_nCols, dvec.Size(), "Dot: " + ERROR_SIZE);
 
     DVector dvecRes(m_nRows);
     for (size_t i = 0; i < m_nRows; ++i)
@@ -423,7 +425,7 @@ void DMatrix::AddVec(DVector const &dvec, ORIENT orientation)
 {
     if (orientation == ORIENT::ROW)
     {
-        IsEqualSize(dvec.Size(), m_nCols, "AddVec: " + ERROR_SIZE);
+        CheckEqualSize(dvec.Size(), m_nCols, "AddVec: " + ERROR_SIZE);
         // почему capture принимает по ссылке, хотя в сигнатуре const?
         std::for_each(m_matrix, &m_matrix[m_nRows - 1] + 1, [&dvec](DVector &vec)
         {
@@ -432,7 +434,7 @@ void DMatrix::AddVec(DVector const &dvec, ORIENT orientation)
     }
     else
     {
-        IsEqualSize(dvec.Size(), m_nRows, "AddVec: " + ERROR_SIZE);
+        CheckEqualSize(dvec.Size(), m_nRows, "AddVec: " + ERROR_SIZE);
         for (size_t i = 0; i < dvec.Size(); ++i)
         {
             m_matrix[i].AddNum(dvec[i]);
@@ -444,7 +446,7 @@ void DMatrix::SubVec(DVector const &dvec, ORIENT orientation)
 {
     if (orientation == ORIENT::ROW)
     {
-        IsEqualSize(dvec.Size(), m_nCols,  "SubVec: " + ERROR_SIZE);
+        CheckEqualSize(dvec.Size(), m_nCols,  "SubVec: " + ERROR_SIZE);
         std::for_each(m_matrix, &m_matrix[m_nRows - 1] + 1, [&dvec](DVector &vec)
         {
             vec -= dvec;
@@ -452,7 +454,7 @@ void DMatrix::SubVec(DVector const &dvec, ORIENT orientation)
     }
     else
     {
-        IsEqualSize(dvec.Size(), m_nRows, "SubVec: " + ERROR_SIZE);
+        CheckEqualSize(dvec.Size(), m_nRows, "SubVec: " + ERROR_SIZE);
         for (size_t i = 0; i < dvec.Size(); ++i)
         {
             m_matrix[i].SubNum(dvec[i]);
@@ -462,7 +464,7 @@ void DMatrix::SubVec(DVector const &dvec, ORIENT orientation)
 
 DMatrix DMatrix::T() const
 {
-    IsEqualSize(m_nRows, m_nCols, "Transponse: " + ERROR_RECT_MATRIX);
+    CheckEqualSize(m_nRows, m_nCols, "Transponse: " + ERROR_RECT_MATRIX);
     DMatrix dmatRes(m_nRows, m_nCols);
     for (size_t i = 0; i < m_nRows; ++i)
     {
@@ -476,7 +478,7 @@ DMatrix DMatrix::T() const
 
 double DMatrix::Det() const
 {
-    IsEqualSize(m_nRows, m_nCols, "Determinant: " + ERROR_RECT_MATRIX);
+    CheckEqualSize(m_nRows, m_nCols, "Determinant: " + ERROR_RECT_MATRIX);
     if (m_nRows == 2)
     {
         return m_matrix[0][0] * m_matrix[1][1] - m_matrix[0][1] * m_matrix[1][0]; 
@@ -557,9 +559,10 @@ void DMatrix::EraseByIndex(size_t index, ORIENT orientation)
         {
             m_matrix[i] = m_matrix[i + 1];
         }
-        m_matrix[--m_nRows].~DVector();
+        --m_nRows;
         if (m_nRows == 0)
         {
+            delete[] m_matrix;
             Clear();
         }
     }
@@ -576,6 +579,7 @@ void DMatrix::EraseByIndex(size_t index, ORIENT orientation)
         m_nCols--;
         if (m_nCols == 0)
         {
+            delete[] m_matrix;
             Clear();
         }
     }
@@ -603,7 +607,6 @@ DMatrix DMatrix::SliceRow(size_t begin, size_t end, int step) const
     {
         throw std::runtime_error("operator(): " + ERROR_RANGE);
     }
-    // auto cmp = [](size_t i, size_t end) -> bool {}
     DMatrix dmatSlice;
     if (step > 0)
     {
@@ -680,4 +683,10 @@ void Print(DMatrix const &matrix, std::string const &msg)
     {
         Print(matrix[i]);
     }
+}
+
+std::ostream &operator<<(std::ostream &out, DMatrix const &matrix)
+{
+    Print(matrix);
+    return out;
 }

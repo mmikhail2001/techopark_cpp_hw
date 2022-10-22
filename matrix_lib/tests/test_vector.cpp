@@ -198,4 +198,3 @@ TEST(TestFunctionalityDVector, TestSliceOperator)
     EXPECT_THROW(dvec(20, 22), std::runtime_error);
     
 }
-

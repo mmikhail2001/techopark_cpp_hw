@@ -6,14 +6,14 @@
 
 extern const std::string ERROR_SIZE;
 
-extern void IsEqualSize(size_t size1, size_t size2, std::string const &msgError);
+extern void CheckEqualSize(size_t size1, size_t size2, std::string const &msgError);
 
 // ---------------------------------------------------
 // vector += vector
 
 DVector &operator+=(DVector &left, DVector const &right) 
 {
-    IsEqualSize(left.Size(), right.Size(), "operator+= :" + ERROR_SIZE);
+    CheckEqualSize(left.Size(), right.Size(), "operator+= :" + ERROR_SIZE);
     for (size_t i = 0; i < left.Size(); ++i)
     {
         left[i] += right[i];
@@ -23,7 +23,7 @@ DVector &operator+=(DVector &left, DVector const &right)
 
 DVector &operator-=(DVector &left, DVector const &right) 
 {
-    IsEqualSize(left.Size(), right.Size(), "operator-= :" + ERROR_SIZE);
+    CheckEqualSize(left.Size(), right.Size(), "operator-= :" + ERROR_SIZE);
     for (size_t i = 0; i < left.Size(); ++i)
     {
         left[i] -= right[i];
@@ -33,7 +33,7 @@ DVector &operator-=(DVector &left, DVector const &right)
 
 DVector &operator*=(DVector &left, DVector const &right) 
 {
-    IsEqualSize(left.Size(), right.Size(), "operator*= :" + ERROR_SIZE);
+    CheckEqualSize(left.Size(), right.Size(), "operator*= :" + ERROR_SIZE);
     for (size_t i = 0; i < left.Size(); ++i)
     {
         left[i] *= right[i];
@@ -43,7 +43,7 @@ DVector &operator*=(DVector &left, DVector const &right)
 
 DVector &operator/=(DVector &left, DVector const &right) 
 {
-    IsEqualSize(left.Size(), right.Size(), "operator/= :" + ERROR_SIZE);
+    CheckEqualSize(left.Size(), right.Size(), "operator/= :" + ERROR_SIZE);
     for (size_t i = 0; i < left.Size(); ++i)
     {
         left[i] /= right[i];
@@ -56,25 +56,25 @@ DVector &operator/=(DVector &left, DVector const &right)
 
 DVector operator+(DVector left, DVector const &right)
 {
-    IsEqualSize(left.Size(), right.Size(), "operator+ :" + ERROR_SIZE);
+    CheckEqualSize(left.Size(), right.Size(), "operator+ :" + ERROR_SIZE);
     return left += right;
 }
 
 DVector operator-(DVector left, DVector const &right)
 {
-    IsEqualSize(left.Size(), right.Size(), "operator- :" + ERROR_SIZE);
+    CheckEqualSize(left.Size(), right.Size(), "operator- :" + ERROR_SIZE);
     return left -= right;
 }
 
 DVector operator*(DVector left, DVector const &right)
 {
-    IsEqualSize(left.Size(), right.Size(), "operator* :" + ERROR_SIZE);
+    CheckEqualSize(left.Size(), right.Size(), "operator* :" + ERROR_SIZE);
     return left *= right;
 }
 
 DVector operator/(DVector left, DVector const &right)
 {
-    IsEqualSize(left.Size(), right.Size(), "operator/ :" + ERROR_SIZE);
+    CheckEqualSize(left.Size(), right.Size(), "operator/ :" + ERROR_SIZE);
     return left /= right;
 }
 

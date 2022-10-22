@@ -4,7 +4,7 @@
 extern const std::string ERROR_EMPTY;
 extern const std::string ERROR_SIZE;
 
-extern void IsEqualSize(size_t size1, size_t size2, std::string const &msgError);
+extern void CheckEqualSize(size_t size1, size_t size2, std::string const &msgError);
 
 // ---------------------------------------------------
 // value *= matrix
@@ -37,8 +37,8 @@ DMatrix operator/(double value, DMatrix matrix)
 
 DMatrix &operator+=(DMatrix &left, DMatrix const &right) 
 {
-    IsEqualSize(left.nRows(), right.nRows(), "operator+= :" + ERROR_SIZE);
-    IsEqualSize(left.nCols(), right.nCols(), "operator+= :" + ERROR_SIZE);
+    CheckEqualSize(left.nRows(), right.nRows(), "operator+= :" + ERROR_SIZE);
+    CheckEqualSize(left.nCols(), right.nCols(), "operator+= :" + ERROR_SIZE);
     for (size_t i = 0; i < left.nRows(); ++i)
     {
         left[i] += right[i];
@@ -48,8 +48,8 @@ DMatrix &operator+=(DMatrix &left, DMatrix const &right)
 
 DMatrix &operator-=(DMatrix &left, DMatrix const &right) 
 {
-    IsEqualSize(left.nRows(), right.nRows(), "operator-= :" + ERROR_SIZE);
-    IsEqualSize(left.nCols(), right.nCols(), "operator-= :" + ERROR_SIZE);
+    CheckEqualSize(left.nRows(), right.nRows(), "operator-= :" + ERROR_SIZE);
+    CheckEqualSize(left.nCols(), right.nCols(), "operator-= :" + ERROR_SIZE);
     for (size_t i = 0; i < left.nRows(); ++i)
     {
         left[i] -= right[i];
@@ -59,8 +59,8 @@ DMatrix &operator-=(DMatrix &left, DMatrix const &right)
 
 DMatrix &operator*=(DMatrix &left, DMatrix const &right) 
 {
-    IsEqualSize(left.nRows(), right.nRows(), "operator*= :" + ERROR_SIZE);
-    IsEqualSize(left.nCols(), right.nCols(), "operator*= :" + ERROR_SIZE);
+    CheckEqualSize(left.nRows(), right.nRows(), "operator*= :" + ERROR_SIZE);
+    CheckEqualSize(left.nCols(), right.nCols(), "operator*= :" + ERROR_SIZE);
     for (size_t i = 0; i < left.nRows(); ++i)
     {
         left[i] *= right[i];
@@ -70,8 +70,8 @@ DMatrix &operator*=(DMatrix &left, DMatrix const &right)
 
 DMatrix &operator/=(DMatrix &left, DMatrix const &right) 
 {
-    IsEqualSize(left.nRows(), right.nRows(), "operator/= :" + ERROR_SIZE);
-    IsEqualSize(left.nCols(), right.nCols(), "operator/= :" + ERROR_SIZE);
+    CheckEqualSize(left.nRows(), right.nRows(), "operator/= :" + ERROR_SIZE);
+    CheckEqualSize(left.nCols(), right.nCols(), "operator/= :" + ERROR_SIZE);
     for (size_t i = 0; i < left.nRows(); ++i)
     {
         left[i] /= right[i];
@@ -84,29 +84,29 @@ DMatrix &operator/=(DMatrix &left, DMatrix const &right)
 
 DMatrix operator+(DMatrix left, DMatrix const &right)
 {
-    IsEqualSize(left.nRows(), right.nRows(), "operator+ :" + ERROR_SIZE);
-    IsEqualSize(left.nCols(), right.nCols(), "operator+ :" + ERROR_SIZE);
+    CheckEqualSize(left.nRows(), right.nRows(), "operator+ :" + ERROR_SIZE);
+    CheckEqualSize(left.nCols(), right.nCols(), "operator+ :" + ERROR_SIZE);
     return left += right;
 }
 
 DMatrix operator-(DMatrix left, DMatrix const &right)
 {
-    IsEqualSize(left.nRows(), right.nRows(), "operator- :" + ERROR_SIZE);
-    IsEqualSize(left.nCols(), right.nCols(), "operator-:" + ERROR_SIZE);
+    CheckEqualSize(left.nRows(), right.nRows(), "operator- :" + ERROR_SIZE);
+    CheckEqualSize(left.nCols(), right.nCols(), "operator-:" + ERROR_SIZE);
     return left -= right;
 }
 
 DMatrix operator*(DMatrix left, DMatrix const &right)
 {
-    IsEqualSize(left.nRows(), right.nRows(), "operator* :" + ERROR_SIZE);
-    IsEqualSize(left.nCols(), right.nCols(), "operator* :" + ERROR_SIZE);
+    CheckEqualSize(left.nRows(), right.nRows(), "operator* :" + ERROR_SIZE);
+    CheckEqualSize(left.nCols(), right.nCols(), "operator* :" + ERROR_SIZE);
     return left *= right;
 }
 
 DMatrix operator/(DMatrix left, DMatrix const &right)
 {
-    IsEqualSize(left.nRows(), right.nRows(), "operator/ :" + ERROR_SIZE);
-    IsEqualSize(left.nCols(), right.nCols(), "operator/ :" + ERROR_SIZE);
+    CheckEqualSize(left.nRows(), right.nRows(), "operator/ :" + ERROR_SIZE);
+    CheckEqualSize(left.nCols(), right.nCols(), "operator/ :" + ERROR_SIZE);
     return left /= right;
 }
 

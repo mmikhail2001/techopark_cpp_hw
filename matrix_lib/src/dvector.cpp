@@ -8,7 +8,7 @@ extern const std::string ERROR_SIZE;
 extern const std::string ERROR_RANGE;
 extern const std::string ERROR_EMPTY;
 
-extern void IsEqualSize(size_t size1, size_t size2, std::string const &msgError);
+extern void CheckEqualSize(size_t size1, size_t size2, std::string const &msgError);
 
 void Print(DVector const &dvector, std::string const &message)
 {
@@ -95,10 +95,37 @@ DVector::DVector(const double *begin, const double *end)
     std::copy(begin, end, m_array);
 }
 
+DVector::~DVector()
+{
+    if (m_array)
+    {
+        delete[] m_array;
+    }
+    m_array = nullptr;
+}
+
 DVector &DVector::operator=(DVector other)
 {
     Swap(other);
     return *this;
+}
+
+double const &DVector::operator[](size_t index) const
+{
+    if (index > m_size - 1)
+    {
+        throw std::runtime_error("operator[] : " + ERROR_RANGE);
+    }
+    return m_array[index];
+}
+
+double &DVector::operator[](size_t index)
+{
+    if (index > m_size - 1)
+    {
+        throw std::runtime_error("operator[] : " + ERROR_RANGE);
+    }
+    return m_array[index];
 }
 
 const double *DVector::CBegin() const
@@ -124,45 +151,9 @@ void DVector::Swap(DVector &other)
     std::swap(m_size, other.m_size);
 }
 
-double const &DVector::operator[](size_t index) const
-{
-    if (index > m_size - 1)
-    {
-        throw std::runtime_error("operator[] : " + ERROR_RANGE);
-    }
-    return m_array[index];
-}
-
-double &DVector::operator[](size_t index)
-{
-    if (index > m_size - 1)
-    {
-        throw std::runtime_error("operator[] : " + ERROR_RANGE);
-    }
-    return m_array[index];
-}
-
-void DVector::PushBack(double value)
-{
-    if (m_size == m_capacity)
-    {
-        grow();
-    }
-    m_array[m_size++] = value;
-}
-
 bool DVector::Empty() const
 {
     return m_size == 0;
-}
-
-void DVector::PopBack()
-{
-    if (Empty())
-    {
-        throw std::runtime_error("PopBack: " + ERROR_EMPTY);
-    }
-    --m_size;
 }
 
 size_t DVector::Size() const
@@ -204,14 +195,42 @@ double DVector::Back() const
     return m_array[m_size - 1];
 }
 
-DVector::~DVector()
+
+void DVector::PushBack(double value)
 {
-    if (m_array)
+    if (m_size == m_capacity)
     {
-        delete[] m_array;
+        grow();
     }
-    m_array = nullptr;
+    m_array[m_size++] = value;
 }
+
+// возвращает элемент, следующий за удаленным либо предыдущий, если удаленный был последним
+double *DVector::Erase(double *it_value)
+{
+    ptrdiff_t diff = reinterpret_cast<uintptr_t>(it_value) -  reinterpret_cast<uintptr_t>(m_array);
+    if (!it_value || it_value < m_array || it_value > &m_array[m_size - 1] || diff % sizeof(double) != 0)
+    {
+        return nullptr;
+    }
+    for (double *it = it_value; it < &m_array[m_size - 1]; it++)
+    {
+        *it = *(it + 1); 
+    }
+    --m_size;
+    return it_value == &m_array[m_size - 1] + 1 ? it_value - 1 : it_value;
+
+}
+
+void DVector::PopBack()
+{
+    if (Empty())
+    {
+        throw std::runtime_error("PopBack: " + ERROR_EMPTY);
+    }
+    --m_size;
+}
+
 
 double *DVector::Find(double value) const
 {
@@ -239,28 +258,12 @@ void DVector::SubNum(double value)
     });
 }
 
-// возвращает элемент, следующий за удаленным либо предыдущий, если удаленный был последним
-double *DVector::Erase(double *it_value)
-{
-    ptrdiff_t diff = reinterpret_cast<uintptr_t>(it_value) -  reinterpret_cast<uintptr_t>(m_array);
-    if (!it_value || it_value < m_array || it_value > &m_array[m_size - 1] || diff % sizeof(double) != 0)
-    {
-        return nullptr;
-    }
-    for (double *it = it_value; it < &m_array[m_size - 1]; it++)
-    {
-        *it = *(it + 1); 
-    }
-    --m_size;
-    return it_value == &m_array[m_size - 1] + 1 ? it_value - 1 : it_value;
-
-}
 
 // подразуемевается что вектор-строка умножается на матрицу
-// результат - DVector
+// vector[1xN] * matrix[NxM] = vector[1xM]
 DVector DVector::Dot(DMatrix const &matrix) const
 {
-    IsEqualSize(m_size, matrix.nRows(), ERROR_SIZE);
+    CheckEqualSize(m_size, matrix.nRows(), ERROR_SIZE);
 
     DVector dvecRes(matrix.nCols());
     for (size_t i = 0; i < matrix.nCols(); ++i)
@@ -275,9 +278,10 @@ DVector DVector::Dot(DMatrix const &matrix) const
     return dvecRes;
 }
 
+// скалярное произведение векторов, результат - число
 double DVector::Dot(DVector const &other) const
 {
-    IsEqualSize(m_size, other.Size(), "Dot:" + ERROR_SIZE);
+    CheckEqualSize(m_size, other.Size(), "Dot:" + ERROR_SIZE);
     double dotProduct = 0;
     for (size_t i = 0; i < m_size; ++i)
     {
@@ -331,4 +335,10 @@ void DVector::grow()
     delete[] m_array;
     m_array = new_array;
     m_capacity = new_capacity;
+}
+
+std::ostream &operator<<(std::ostream &out, DVector const &vector)
+{
+    Print(vector);
+    return out;
 }

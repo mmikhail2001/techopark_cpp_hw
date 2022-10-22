@@ -7,6 +7,10 @@ const double EPS = 0.000001;
 
 bool CompareMatrices(DMatrix const &matrix, std::initializer_list<std::initializer_list<double>> const &init_list)
 {
+    if ((matrix.nRows() != init_list.size()) || (matrix.nCols() != init_list.begin()->size()))
+    {
+        return false;
+    }
     for (size_t i = 0; i < matrix.nRows(); ++i)
     {
         for (size_t j = 0; j < matrix.nCols(); ++j)
@@ -22,6 +26,10 @@ bool CompareMatrices(DMatrix const &matrix, std::initializer_list<std::initializ
 
 bool CompareVectors(DVector const &dvec, std::initializer_list<double> const &init_list)
 {
+    if (dvec.Size() != init_list.size())
+    {
+        return false;
+    }
     for (size_t i = 0; i < dvec.Size(); ++i)
     {
         if (std::abs(dvec[i] - *(init_list.begin() + i)) > EPS)
@@ -133,6 +141,8 @@ TEST(TestErrorHandling, TestAccessAndCreateNotRectangleMatrix)
     EXPECT_THROW(DMatrix dmat(dvecs, 2), std::runtime_error);
 
     DMatrix dmat{ {1, 2, 3}, {4, 5, 6} };
+
+    delete[] dvecs;
 
     EXPECT_THROW(dmat[2][1], std::runtime_error);
     EXPECT_THROW(dmat[0][5], std::runtime_error);
@@ -506,7 +516,7 @@ TEST(TestFunctionalityDMatrix, TestEraseByIndexCol)
     }));
 
     dmat.EraseByIndex(0, ORIENT::COL);
-    EXPECT_TRUE(CompareMatrices(dmat, {{}}));
+    EXPECT_TRUE(dmat.Empty());
 
     EXPECT_THROW(dmat.EraseByIndex(0, ORIENT::COL), std::runtime_error);
     EXPECT_THROW(dmat.EraseByIndex(200, ORIENT::COL), std::runtime_error);
@@ -634,7 +644,7 @@ TEST(TestFunctionalityDMatrix, TestSliceOperatorRow)
     EXPECT_THROW(dmat(0, 100), std::runtime_error);
 
     DMatrix dmatSlice5 = dmat(0, 4, 0);
-    EXPECT_TRUE(CompareMatrices(dmatSlice5, { {} }));
+    EXPECT_TRUE(dmatSlice5.Empty());
 }
 
 TEST(TestFunctionalityDMatrix, TestSliceOperatorCol)
@@ -738,4 +748,3 @@ TEST(TestFunctionalityDMatrix, TestSliceCallMethod)
         {17,    19}
     }));
 }
-

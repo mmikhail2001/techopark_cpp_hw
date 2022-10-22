@@ -120,6 +120,8 @@ DMatrix  operator-(DMatrix left, DMatrix const &right);
 DMatrix  operator/(DMatrix left, DMatrix const &right);
 DMatrix  operator*(DMatrix left, DMatrix const &right);
 
+std::ostream &operator<<(std::ostream &out, DMatrix const &matrix);
+
 void Print(DMatrix const &matrix, std::string const &msg = std::string{});
 
 template <size_t rows, size_t cols>

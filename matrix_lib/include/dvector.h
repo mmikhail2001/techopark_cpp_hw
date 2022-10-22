@@ -1,7 +1,5 @@
 #pragma once
 
-#include "stdafx.h"
-
 class DMatrix;
 
 // Vector of doubles number
@@ -81,3 +79,5 @@ DVector  operator/(DVector left, DVector const &right);
 DVector  operator*(DVector left, DVector const &right);
 
 void Print(DVector const &dvector, std::string const &message = std::string{});
+
+std::ostream &operator<<(std::ostream &out, DVector const &vector);

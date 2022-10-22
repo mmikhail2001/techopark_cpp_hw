@@ -29,15 +29,11 @@ jobs:
           make run
           make test
       - name: Test coverage
-        run: |
-          cd build && lcov -t "tests_matrix" -o coverage.info -c -d ${LIB_NAME}/CMakeFiles
-          genhtml -o report coverage.info
+        run: make coverage
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: coverage-info
           path: build/report
       - name: launch valgrind
-        run: |
-          cd build
-          valgrind --tool=memcheck --leak-check=yes ./main
+        run: make valgrind_tests

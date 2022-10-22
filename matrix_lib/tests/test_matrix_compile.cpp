@@ -115,4 +115,3 @@ TEST(TestFunctionalityDMatrixCompile, TestGetRowAndCol)
 
     EXPECT_TRUE(CompareVectors(vec1, { 1, 1, 0 }));
 }
-

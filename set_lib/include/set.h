@@ -3,58 +3,61 @@
 #include <iostream>
 #include <memory>
 
-#include "iterator.h"
+enum class IS_END {NO = 0, YES = 1};
+
+template <typename T, typename Comparator>
+class Iterator;
 
 template <typename T, typename Comparator = std::less<T>>
 class Set
 {
-    struct Node
-    {
-        Node(const T &data)
-        : data(data), height(1)
-        {
-        }
-        std::shared_ptr<Node> Next();
-        std::shared_ptr<Node> Prev();
-        
-        T 		data;
-        size_t 	height;
-        std::shared_ptr<Node>	left;	
-        std::shared_ptr<Node> 	right;
-        std::shared_ptr<Node> 	parent;
-        friend class            Iterator<T>;
-    };
-    
 public:
-
     using key_type          = T;
     using value_type        = T;
     using size_type         = std::size_t;
     using difference_type   = std::ptrdiff_t;
+    using key_compare       = Comparator;
+    using value_compare     = Comparator;
     using reference         = T&;
     using const_reference   = const T&;
-    using iterator          = Iterator<T>;
-    // using const_iterator = 
-    // using reverse_iterator = 
-    // using const_reverse_iterator = 
-    
+    using iterator          = Iterator<T, Comparator>;
+private:
+    struct Node
+    {
+        Node(const T &data, IS_END isend = IS_END::NO)
+        : data(data), height(1), isEnd(isEnd)
+        {
+        }
+        std::shared_ptr<Node> Next();
+        std::shared_ptr<Node> Prev();
 
-
+        T 		                data;
+        size_t 	                height;
+        std::shared_ptr<Node>	left;	
+        std::shared_ptr<Node> 	right;
+        std::shared_ptr<Node> 	parent;
+        IS_END                  isEnd;
+    };
+public:
     Set();
     ~Set();
-    void 	Insert(const T &data);
-    bool 	Has(const T &data) const;
-    void 	Erase(const T &data);
-    std::shared_ptr<Node> begin() const;
-    std::shared_ptr<Node> end() const;
+    size_type   size() const;
+    bool        empty() const;
+    void 	    Insert(const_reference);
+    bool 	    Has(const_reference) const;
+    void 	    Erase(const_reference);
+    iterator    begin() const;
+    iterator    end() const;
     
 private:
+    friend class Iterator<T, Comparator>;
+    static const std::shared_ptr<Node> m_nodeEnd;
     std::shared_ptr<Node>	m_root;
     Comparator              m_cmp;
-    // friend class            Iterator<T>;
-    
-    std::shared_ptr<Node> 	eraseInternal(std::shared_ptr<Node> node, const T &data);
-    std::shared_ptr<Node> 	insertInternal(std::shared_ptr<Node> node, const T &data);
+    size_type               m_size = 0;
+
+    std::shared_ptr<Node> 	eraseInternal(std::shared_ptr<Node> node, const_reference data);
+    std::shared_ptr<Node> 	insertInternal(std::shared_ptr<Node> node, const_reference data);
     
     std::shared_ptr<Node> 	detachReplacement(std::shared_ptr<Node> node);
     std::shared_ptr<Node> 	findReplacement(std::shared_ptr<Node> node) const;

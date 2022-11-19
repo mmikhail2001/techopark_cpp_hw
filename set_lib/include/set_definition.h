@@ -5,6 +5,9 @@
 #include "set.h"
 
 template <typename T, typename Comparator>
+const typename Set<T, Comparator>::std::template shared_ptr<typename Set<T, Comparator>::Node> m_nodeEnd = std::make_shared<typename Set<T, Comparator>::Node>(0, IS_END::YES);
+
+template <typename T, typename Comparator>
 Set<T, Comparator>::Set() : m_root(nullptr) 
 {	
 }
@@ -21,6 +24,7 @@ void Set<T, Comparator>::Insert(const T &data)
 	{
 		return;
 	}
+	++m_size;
 	m_root = insertInternal(m_root, data);
 }
     
@@ -49,6 +53,10 @@ bool Set<T, Comparator>::Has(const T &data) const
 template <typename T, typename Comparator>
 void Set<T, Comparator>::Erase(const T &data)
 {
+	if (Has(data))
+	{
+		--m_size;
+	}
 	m_root = eraseInternal(m_root, data);
 }
 
@@ -96,7 +104,8 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::eraseInte
 		{
 			replace->left->parent = replace;
 		}
-		replace->parent = node->parent; // на выходе из рекурсии редактируем parent
+		// на выходе из рекурсии редактируем parent
+		replace->parent = node->parent; 
 		
 		return doBalance(replace);
 	}
@@ -237,24 +246,26 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::doBalance
 
 
 template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::begin() const
+Iterator<T, Comparator>  Set<T, Comparator>::begin() const
 {
 	if (!m_root)
 	{
-		return nullptr;
+		return Iterator<T, Comparator>(m_nodeEnd);
 	}
+	// можно оптимизировать
+	// при вставке обновлять минимальный (максимальный) элемент
 	std::shared_ptr<Node> node = m_root;
 	while (node->left)
     {
 		node = node->left;
     }
-	return node;
+	return Iterator<T, Comparator>(node);
 }
 
 template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::end() const
+Iterator<T, Comparator>  Set<T, Comparator>::end() const
 {
-	return nullptr;
+	return Iterator<T, Comparator>(m_nodeEnd);
 }
 
 
@@ -277,7 +288,7 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Nex
 		// вверх до того родителя, у которого левым потоком являемся мы 
 		if (!parent)
 		{
-			return nullptr;
+			return m_nodeEnd;
 		}
 		else
 		{
@@ -293,15 +304,17 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Nex
 			node = needed_parent; 
 			needed_parent = needed_parent->parent;
 		}
-		return needed_parent;
+		return needed_parent ? needed_parent : m_nodeEnd;
 	}
 } 
+
+
 
 template <typename T, typename Comparator>
 std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Prev() 
 {
 	std::shared_ptr<Node> node;
-	// влево и вправо до упора
+	// вправо и влево до упора
 	if (left)
 	{
 		node = left;
@@ -313,10 +326,10 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Pre
 	}
 	else
 	{
-		// вверх до того родителя, у которого правым потоком являемся мы 
+		// вверх до того родителя, у которого левым потоком являемся мы 
 		if (!parent)
 		{
-			return nullptr;
+			return m_nodeEnd;
 		}
 		else
 		{
@@ -332,8 +345,20 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Pre
 			node = needed_parent; 
 			needed_parent = needed_parent->parent;
 		}
-		return needed_parent;
+		return needed_parent ? needed_parent : m_nodeEnd;
 	}
 } 
+
+template <typename T, typename Comparator>
+std::size_t Set<T, Comparator>::size() const
+{
+	return m_size;
+}
+
+template <typename T, typename Comparator>
+bool Set<T, Comparator>::empty() const
+{
+	return m_size == 0;
+}
 
 

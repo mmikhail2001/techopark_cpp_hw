@@ -331,3 +331,158 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::end() con
 	return nullptr;
 }
 
+// template <typename T, typename Comparator>
+// void Set<T, Comparator>::Node::Next()
+// {
+// 	if (right)
+// 	{
+// 		while (left)
+// 		{
+// 			Node *this_node = left.get();
+// 			this = this_node;
+// 			// right 	= left->right;
+// 			// left 	= left->left;
+// 			// parent.reset(this); 
+// 		}
+// 	}
+// 	else
+// 	{
+// 		while (parent && parent->left.get() != this)
+// 		{
+// 			Node *this_node = parent.get();
+// 			this = this_node;
+// 			// this = parent.get();
+// 		}
+// 		Node *this_node = parent.get();
+// 		this = this_node;
+// 		// this = parent.get();
+// 	}
+// } 
+
+// template <typename T, typename Comparator>
+// void Set<T, Comparator>::Node::Next() 
+// {
+// 	if (right)
+// 	{
+// 		while (left)
+// 		{
+// 			// this = left.get();
+// 			right 	= left->right;
+// 			left 	= left->left;
+// 			parent.reset(this); 
+// 		}
+// 	}
+// 	else
+// 	{
+// 		while (parent && parent->left.get() != this)
+// 		{
+// 			left = parent->left;
+// 			right = parent->right;
+// 			parent = parent->parent;
+// 			// this = parent.get();
+// 		}
+// 		if (parent)
+// 		{
+// 			left = parent->left;
+// 			right = parent->right;
+// 			parent = parent->parent;
+// 		}
+// 		else
+// 		{
+// 			left = right = parent = nullptr;
+// 		}
+// 	}
+// } 
+
+// template <typename T, typename Comparator>
+// std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Next() 
+// {
+// 	Node *node = this;
+// 	if (node->right)
+// 	{
+// 		node = node->right.get();
+// 		while (node->left)
+// 		{
+// 			node = node->left.get();
+// 		}
+// 		return std::make_shared<Node>(*node);
+// 		// return std::shared_ptr<Node>(node);
+// 	}
+// 	else
+// 	{
+// 		std::shared_ptr<Node> needed_parent = node->parent;
+// 		while (needed_parent && needed_parent->left.get() != node)
+// 		{
+// 			node = needed_parent.get(); 
+// 			needed_parent = needed_parent->parent;
+// 		}
+// 		return needed_parent;
+// 	}
+// } 
+
+template <typename T, typename Comparator>
+std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Next() 
+{
+	std::shared_ptr<Node> node;
+	if (right)
+	{
+		node = right;
+	// if (node->right)
+	// {
+		// node = node->right.get();
+		while (node->left)
+		{
+			node = node->left;
+		}
+		return node;
+		// return std::make_shared<Node>(*node);
+		// return std::shared_ptr<Node>(node);
+	}
+	else
+	{
+		if (!parent)
+		{
+			return nullptr;
+		}
+		else
+		{
+			node = parent;
+			if (node->left.get() == this)
+			{
+				return node;
+			}
+		}
+		// std::shared_ptr<Node> child = node->parent;
+		std::shared_ptr<Node> needed_parent = node->parent;
+		while (needed_parent && needed_parent->left != node)
+		{
+			node = needed_parent; 
+			needed_parent = needed_parent->parent;
+		}
+		return needed_parent;
+	}
+} 
+
+// template <typename T, typename Comparator>
+// void Set<T, Comparator>::Node::Prev() const
+// {
+// 	if (left)
+// 	{
+// 		while (right)
+// 		{
+// 			this = right.get();
+// 			// right 	= left->right;
+// 			// left 	= left->left;
+// 			// parent.reset(this); 
+// 		}
+// 	}
+// 	else
+// 	{
+// 		while (parent && parent->right.get() != this)
+// 		{
+// 			this = parent.get();
+// 		}
+// 		this = parent.get();
+// 	}
+// } 
+

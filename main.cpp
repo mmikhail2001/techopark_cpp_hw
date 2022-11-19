@@ -44,9 +44,39 @@ int main(int argc, const char * argv[]) {
     set.Insert(10);
     set.Insert(11);
     set.Insert(12);
-    set.Erase(10);
+    set.Insert(13);
+    set.Insert(14);
+    set.Insert(15);
+    set.Insert(16);
+    set.Insert(17);
+    set.Insert(18);
+    set.Insert(19);
+    set.Insert(20);
 
-    for (auto it = set.begin(); it != set.end(); it = set.NextInternal(it))
+    // for (auto it = set.begin(); it != set.end(); it = set.NextInternal(it))
+    // {
+    //     std::cout << it->data << " ";
+    // }
+
+    for (auto it = set.begin(); it != set.end(); it = it->Next())
+    {
+        std::cout << it->data << " ";
+    }
+
+    set.Erase(10);
+    std::cout << "\n";
+
+    for (auto it = set.begin(); it != set.end(); it = it->Next())
+    {
+        std::cout << it->data << " ";
+    }
+
+    set.Erase(7);
+    set.Erase(12);
+    set.Erase(8);
+    std::cout << "\n";
+
+    for (auto it = set.begin(); it != set.end(); it = it->Next())
     {
         std::cout << it->data << " ";
     }

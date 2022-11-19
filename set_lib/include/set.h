@@ -11,9 +11,11 @@ class Set
     struct Node
     {
         Node(const T &data)
-        : data(data), height(1), left(nullptr), right(nullptr), parent(nullptr)
+        : data(data), height(1)
         {
         }
+        std::shared_ptr<Node> Next();
+        // std::shared_ptr<Node> Prev();
         
         T 		data;
         size_t 	height;

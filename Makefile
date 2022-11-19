@@ -43,7 +43,7 @@ valgrind_tests:
 	valgrind --tool=memcheck --leak-check=yes --error-exitcode=1 ./${BUILD_DIR}/${TESTS_DIR}/${TESTS_EXE}
 
 valgrind_target:
-	valgrind --tool=memcheck --leak-check=yes --error-exitcode=1 ./${BUILD_DIR}/${TARGET_EXE}
+	valgrind --tool=memcheck -s --leak-check=yes --error-exitcode=1 ./${BUILD_DIR}/${TARGET_EXE}
 
 scan_build:
 	cd ${BUILD_DIR} && scan-build $(MAKE) --no-print-directory

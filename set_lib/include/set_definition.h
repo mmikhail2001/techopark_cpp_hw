@@ -4,18 +4,18 @@
 
 #include "set.h"
 
-template <typename T, typename Comparator>
-Set<T, Comparator>::Set() : m_root(nullptr) 
+template <typename T, typename Cmp>
+Set<T, Cmp>::Set() : m_root(nullptr) 
 {	
 }
 
-template <typename T, typename Comparator>
-Set<T, Comparator>::~Set()
+template <typename T, typename Cmp>
+Set<T, Cmp>::~Set()
 {
 }
 
-template <typename T, typename Comparator>
-void Set<T, Comparator>::Insert(const T &data)
+template <typename T, typename Cmp>
+void Set<T, Cmp>::Insert(const T &data)
 {
 	if (Has(data))
 	{
@@ -25,8 +25,8 @@ void Set<T, Comparator>::Insert(const T &data)
 	m_root = insertInternal(m_root, data);
 }
     
-template <typename T, typename Comparator>
-bool Set<T, Comparator>::Has(const T &data) const
+template <typename T, typename Cmp>
+bool Set<T, Cmp>::Has(const T &data) const
 {
     std::shared_ptr<Node> tmp = m_root;
 	while (tmp)
@@ -47,8 +47,8 @@ bool Set<T, Comparator>::Has(const T &data) const
 	return false;
 }
     
-template <typename T, typename Comparator>
-void Set<T, Comparator>::Erase(const T &data)
+template <typename T, typename Cmp>
+void Set<T, Cmp>::Erase(const T &data)
 {
 	if (Has(data))
 	{
@@ -57,8 +57,8 @@ void Set<T, Comparator>::Erase(const T &data)
 	m_root = eraseInternal(m_root, data);
 }
 
-template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::eraseInternal(std::shared_ptr<Node> node, const T &data)
+template <typename T, typename Cmp>
+std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::eraseInternal(std::shared_ptr<Node> node, const T &data)
 {
 	if (!node)
     {
@@ -109,8 +109,8 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::eraseInte
 	return doBalance(node);
 }
 
-template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::findReplacement(std::shared_ptr<Node> node) const
+template <typename T, typename Cmp>
+std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::findReplacement(std::shared_ptr<Node> node) const
 {
 	while (node->left)
     {
@@ -119,8 +119,8 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::findRepla
 	return node;
 }
 
-template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::detachReplacement(std::shared_ptr<Node> node)
+template <typename T, typename Cmp>
+std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::detachReplacement(std::shared_ptr<Node> node)
 {
 	if (!node->left)
     {
@@ -134,8 +134,8 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::detachRep
 	return doBalance(node);
 }
 
-template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::insertInternal(std::shared_ptr<Node> node, const T &data)
+template <typename T, typename Cmp>
+std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::insertInternal(std::shared_ptr<Node> node, const T &data)
 {
 	if (!node)
     {
@@ -156,20 +156,20 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::insertInt
 	return doBalance(node);
 }
 
-template <typename T, typename Comparator>
-size_t Set<T, Comparator>::getHeight(std::shared_ptr<Node> node) const
+template <typename T, typename Cmp>
+size_t Set<T, Cmp>::getHeight(std::shared_ptr<Node> node) const
 {
 	return node ? node->height : 0;
 }
 
-template <typename T, typename Comparator>
-void Set<T, Comparator>::fixHeight(std::shared_ptr<Node> node)
+template <typename T, typename Cmp>
+void Set<T, Cmp>::fixHeight(std::shared_ptr<Node> node)
 {
 	node->height = std::max(getHeight(node->left), getHeight(node->right)) + 1;
 }
 
-template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::rotateLeft(std::shared_ptr<Node> node)
+template <typename T, typename Cmp>
+std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::rotateLeft(std::shared_ptr<Node> node)
 {
 	std::shared_ptr<Node> tmp = node->right;
 	node->right = tmp->left;
@@ -185,8 +185,8 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::rotateLef
 	return tmp;
 }
 
-template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::rotateRight(std::shared_ptr<Node> node)
+template <typename T, typename Cmp>
+std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::rotateRight(std::shared_ptr<Node> node)
 {
 	// node = a
 	// tmp = node->left = b
@@ -205,14 +205,14 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::rotateRig
 	return tmp;
 }
 
-template <typename T, typename Comparator>
-int Set<T, Comparator>::getBalance(std::shared_ptr<Node> node) const
+template <typename T, typename Cmp>
+int Set<T, Cmp>::getBalance(std::shared_ptr<Node> node) const
 {
 	return getHeight(node->right) - getHeight(node->left);
 }
 
-template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::doBalance(std::shared_ptr<Node> node)
+template <typename T, typename Cmp>
+std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::doBalance(std::shared_ptr<Node> node)
 {
 	fixHeight(node);
 	
@@ -242,12 +242,12 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::doBalance
 }
 
 
-template <typename T, typename Comparator>
-Iterator<T, Comparator>  Set<T, Comparator>::begin() const
+template <typename T, typename Cmp>
+Iterator<T, Cmp>  Set<T, Cmp>::begin() const
 {
 	if (!m_root)
 	{
-		return Iterator<T, Comparator>(nullptr);
+		return Iterator<T, Cmp>(nullptr);
 	}
 	// можно оптимизировать
 	// при вставке обновлять минимальный (максимальный) элемент
@@ -256,24 +256,25 @@ Iterator<T, Comparator>  Set<T, Comparator>::begin() const
     {
 		node = node->left;
     }
-	return Iterator<T, Comparator>(node);
+	return Iterator<T, Cmp>(node);
 }
 
-template <typename T, typename Comparator>
-Iterator<T, Comparator>  Set<T, Comparator>::end() const
+template <typename T, typename Cmp>
+Iterator<T, Cmp>  Set<T, Cmp>::end() const
 {
-	return Iterator<T, Comparator>(nullptr);
+	return Iterator<T, Cmp>(nullptr);
 }
 
-
-template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Next() 
+template <typename T, typename Cmp>
+std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::NextInternal(std::shared_ptr<Node> node) const
 {
-	std::shared_ptr<Node> node;
-	// вправо и влево до упора
-	if (right)
+	if (!node)
 	{
-		node = right;
+		return nullptr;
+	}
+	if (node->right)
+	{
+		node = node->right;
 		while (node->left)
 		{
 			node = node->left;
@@ -282,39 +283,31 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Nex
 	}
 	else
 	{
-		// вверх до того родителя, у которого левым потоком являемся мы 
-		if (!parent)
-		{
-			return nullptr;
-		}
-		else
-		{
-			node = parent;
-			if (node->left.get() == this)
-			{
-				return node;
-			}
-		}
 		std::shared_ptr<Node> needed_parent = node->parent;
 		while (needed_parent && needed_parent->left != node)
 		{
 			node = needed_parent; 
-			needed_parent = needed_parent->parent;
+			needed_parent = node->parent;
 		}
 		return needed_parent;
 	}
-} 
+}
 
-
-
-template <typename T, typename Comparator>
-std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Prev() 
+template <typename T, typename Cmp>
+std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::PrevInternal(std::shared_ptr<Node> node) const
 {
-	std::shared_ptr<Node> node;
-	// вправо и влево до упора
-	if (left)
+	if (node == end())
 	{
-		node = left;
+		std::shared_ptr<Node> node = m_root;
+		while (node->right)
+		{
+			node = node->right;
+		}
+		return node;
+	}
+	if (node->left)
+	{
+		node = node->left;
 		while (node->right)
 		{
 			node = node->right;
@@ -323,37 +316,24 @@ std::shared_ptr<typename Set<T, Comparator>::Node> Set<T, Comparator>::Node::Pre
 	}
 	else
 	{
-		// вверх до того родителя, у которого левым потоком являемся мы 
-		if (!parent)
-		{
-			return nullptr;
-		}
-		else
-		{
-			node = parent;
-			if (node->right.get() == this)
-			{
-				return node;
-			}
-		}
 		std::shared_ptr<Node> needed_parent = node->parent;
 		while (needed_parent && needed_parent->right != node)
 		{
 			node = needed_parent; 
-			needed_parent = needed_parent->parent;
+			needed_parent = node->parent;
 		}
 		return needed_parent;
 	}
-} 
+}
 
-template <typename T, typename Comparator>
-std::size_t Set<T, Comparator>::size() const
+template <typename T, typename Cmp>
+std::size_t Set<T, Cmp>::size() const
 {
 	return m_size;
 }
 
-template <typename T, typename Comparator>
-bool Set<T, Comparator>::empty() const
+template <typename T, typename Cmp>
+bool Set<T, Cmp>::empty() const
 {
 	return m_size == 0;
 }

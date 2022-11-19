@@ -3,10 +3,10 @@
 #include <iostream>
 #include <memory>
 
-template <typename T, typename Comparator>
+template <typename T, typename Cmp>
 class Iterator;
 
-template <typename T, typename Comparator = std::less<T>>
+template <typename T, typename Cmp = std::less<T>>
 class Set
 {
 public:
@@ -14,11 +14,11 @@ public:
     using value_type        = T;
     using size_type         = std::size_t;
     using difference_type   = std::ptrdiff_t;
-    using key_compare       = Comparator;
-    using value_compare     = Comparator;
+    using key_compare       = Cmp;
+    using value_compare     = Cmp;
     using reference         = T&;
     using const_reference   = const T&;
-    using iterator          = Iterator<T, Comparator>;
+    using iterator          = Iterator<T, Cmp>;
 private:
     struct Node
     {
@@ -26,8 +26,6 @@ private:
         : data(data), height(1)
         {
         }
-        std::shared_ptr<Node> Next();
-        std::shared_ptr<Node> Prev();
 
         T 		                data;
         size_t 	                height;
@@ -47,9 +45,9 @@ public:
     iterator    end() const;
     
 private:
-    friend class Iterator<T, Comparator>;
+    friend class Iterator<T, Cmp>;
     std::shared_ptr<Node>	m_root;
-    Comparator              m_cmp;
+    Cmp              m_cmp;
     size_type               m_size = 0;
 
     std::shared_ptr<Node> 	eraseInternal(std::shared_ptr<Node> node, const_reference data);
@@ -66,6 +64,9 @@ private:
 
     int 	getBalance(std::shared_ptr<Node> node) const;
     std::shared_ptr<Node> 	doBalance(std::shared_ptr<Node> node);
+
+    std::shared_ptr<Node> NextInternal(std::shared_ptr<Node> node) const;
+    std::shared_ptr<Node> PrevInternal(std::shared_ptr<Node> node) const;
     
 };
 

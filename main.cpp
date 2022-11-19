@@ -12,23 +12,23 @@ int main(int argc, const char * argv[])
 
 
 
-    for (auto elem : set)
-    {
-        std::cout << elem << " ";
-    }
+    // for (auto elem : set)
+    // {
+    //     std::cout << elem << " ";
+    // }
 
-    std::cout << "size = " << set.size() << "\n";
+    // std::cout << "size = " << set.size() << "\n";
 
-    set.Erase(7);
-    set.Erase(11);
+    // set.Erase(7);
+    // set.Erase(11);
 
-    std::cout << "size = " << set.size() << "\n";
+    // std::cout << "size = " << set.size() << "\n";
 
-    std::cout << "\n";
-    for (auto it = set.begin(); it != set.end(); it++)
-    {
-        std::cout << *it << " ";
-    }
+    // std::cout << "\n";
+    // for (auto it = set.begin(); it != set.end(); it++)
+    // {
+    //     std::cout << *it << " ";
+    // }
 
     // puts("\n\n0");
     // auto start  = --set.end();

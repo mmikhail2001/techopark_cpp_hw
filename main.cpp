@@ -1,5 +1,6 @@
 #include "set.h"
 #include "iterator.h"
+#include <vector>
 
 /*
 1. HAS -> FIND
@@ -11,27 +12,42 @@
 
 int main(int argc, const char * argv[]) 
 {
-    Set<int> set;
-    set.insert(70);
-    set.insert(90 );
-    set.insert(110);
-    set.insert(3);
-    set.insert(130);
-    set.insert(80 );
-    set.insert(120);
-    set.insert(100);
-    set.insert(-7);
+    // Set<int> set;
+    // set.insert(70);
+    // set.insert(90 );
+    // set.insert(110);
+    // set.insert(3);
+    // set.insert(130);
+    // set.insert(80 );
+    // set.insert(120);
+    // set.insert(100);
+    // set.insert(-7);
 
     // set.erase(7);
     // set.erase(8);
-    set.erase(70);
+    // set.erase(70);
     // set.erase(13);
-    set.erase(100);
+    // set.erase(100);
     // set.erase(11);
 
     // auto it = set.lower_bound(-8);
 
-    for (auto elem : set)
+    // std::vector<int> vec = {1, 5, 3, 7, 34, 88};
+    // Set<int> set(vec.begin(), vec.end());
+    Set<int> set = {1, 5, 3, 7, 34, 88};
+    Set<int> set2 = {465, 12, 6, 4};
+
+    Set<int> set3 = set;
+    set = set2;
+    set2 = set3;
+    // Set<int, std::greater<int>> set2(set);
+
+    set.erase(1);
+    set.erase(5);
+    set.erase(6);
+    set.erase(7);
+
+    for (auto elem : set2)
     {
         std::cout << elem << " ";
     }

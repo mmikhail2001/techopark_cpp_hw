@@ -5,8 +5,64 @@
 #include "set.h"
 
 template <typename T, typename Cmp>
-Set<T, Cmp>::Set() : m_root(nullptr) 
+Set<T, Cmp>::Set(Cmp cmp) : m_cmp(cmp), m_root(nullptr) 
 {	
+}
+
+template <typename T, typename Cmp>
+template <typename InputIt, typename>
+Set<T, Cmp>::Set(InputIt first, InputIt last, Cmp cmp) : m_cmp(cmp) 
+{	
+	for (; first != last; ++first)
+	{
+		insert(*first);
+	}
+}
+
+template <typename T, typename Cmp>
+Set<T, Cmp>::Set(std::initializer_list<T> const &init_list)
+{
+	for (auto && elem : init_list)
+	{
+		insert(elem);
+	}
+}
+
+template <typename T, typename Cmp>
+template<typename Cmp_>
+Set<T, Cmp>::Set(Set<T, Cmp_> const &other)
+{
+	for (auto elem : other)
+	{
+		insert(elem);
+	}
+}
+
+
+template <typename T, typename Cmp>
+Set<T, Cmp>::Set(Set const &other)
+{
+	for (auto elem : other)
+	{
+		insert(elem);
+	}
+}
+
+template <typename T, typename Cmp>
+Set<T, Cmp>& Set<T, Cmp>::operator=(Set other)
+{
+	Swap(other);
+	return *this;
+}
+
+template <typename T, typename Cmp>
+void Set<T, Cmp>::Swap(Set &other)
+{
+	std::swap(m_root, other.m_root);
+	std::swap(m_first, other.m_first);
+	std::swap(m_last, other.m_last);
+	std::swap(m_cmp, other.m_cmp);
+	std::swap(m_size, other.m_size);
 }
 
 template <typename T, typename Cmp>

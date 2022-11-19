@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <memory>
+#include <type_traits>
 
 template <typename T, typename Cmp>
 class Iterator;
@@ -38,7 +39,14 @@ private:
         std::shared_ptr<Node> 	prev;
     };
 public:
-    Set();
+    Set(Cmp cmp = Cmp{});
+    template <typename InputIt, typename = typename std::enable_if<std::is_same<typename   std::iterator_traits<InputIt>::value_type, T>::value>::type>
+    Set(InputIt first, InputIt last, Cmp cmp = Cmp{});
+    Set(std::initializer_list<T> const &init_list);
+    template<typename Cmp_ = Cmp>
+    Set(Set<T, Cmp_> const &other);
+    Set(Set const &other);
+    Set &operator=(Set other);
     ~Set();
     size_type       size() const;
     bool            empty() const;
@@ -80,6 +88,8 @@ private:
 
     std::shared_ptr<Node>   nextInternal(std::shared_ptr<Node> node) const;
     std::shared_ptr<Node>   prevInternal(std::shared_ptr<Node> node) const;
+
+    void                    Swap(Set &other);
     
 };
 

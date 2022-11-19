@@ -21,18 +21,18 @@ public:
     Iterator(std::shared_ptr<typename Set<T, Cmp>::Node> node);
     Iterator(const Iterator &) = default;
 
-    Iterator&   operator=(const Iterator &) = default;
+    Iterator&       operator=(const Iterator &) = default;
  
-    Iterator&   operator++();
-    Iterator    operator++(int);
-    Iterator&   operator--();
-    Iterator    operator--(int);
+    Iterator&       operator++();
+    Iterator        operator++(int);
+    Iterator&       operator--();
+    Iterator        operator--(int);
  
     const_reference operator*();
     const_pointer   operator->();
  
-    bool        operator==(const Iterator &);
-    bool        operator!=(const Iterator &);
+    bool            operator==(const Iterator &);
+    bool            operator!=(const Iterator &);
 private:
     std::shared_ptr<typename  Set<T, Cmp>::Node> node;
 };

@@ -3,8 +3,6 @@
 #include <iostream>
 #include <memory>
 
-enum class IS_END {NO = 0, YES = 1};
-
 template <typename T, typename Comparator>
 class Iterator;
 
@@ -24,8 +22,8 @@ public:
 private:
     struct Node
     {
-        Node(const T &data, IS_END isend = IS_END::NO)
-        : data(data), height(1), isEnd(isEnd)
+        Node(const T &data)
+        : data(data), height(1)
         {
         }
         std::shared_ptr<Node> Next();
@@ -36,7 +34,6 @@ private:
         std::shared_ptr<Node>	left;	
         std::shared_ptr<Node> 	right;
         std::shared_ptr<Node> 	parent;
-        IS_END                  isEnd;
     };
 public:
     Set();
@@ -51,7 +48,6 @@ public:
     
 private:
     friend class Iterator<T, Comparator>;
-    static const std::shared_ptr<Node> m_nodeEnd;
     std::shared_ptr<Node>	m_root;
     Comparator              m_cmp;
     size_type               m_size = 0;

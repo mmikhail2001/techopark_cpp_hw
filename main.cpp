@@ -30,14 +30,14 @@ int main(int argc, const char * argv[])
         std::cout << *it << " ";
     }
 
-    puts("\n\n0");
-    auto start  = --set.end();
-    puts("1");
-    auto end    = --set.begin();
-    puts("2");
-    for (; start != end; start--)
-    {
-        std::cout << *start << " ";
-    }
+    // puts("\n\n0");
+    // auto start  = --set.end();
+    // puts("1");
+    // auto end    = --set.begin();
+    // puts("2");
+    // for (; start != end; start--)
+    // {
+    //     std::cout << *start << " ";
+    // }
     return 0;
 }

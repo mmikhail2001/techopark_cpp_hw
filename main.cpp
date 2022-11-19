@@ -1,7 +1,7 @@
 #include "set.h"
 
 int main(int argc, const char * argv[]) {
-    Set<std::string> set;
+    Set<std::string, std::greater<std::string>> set;
     
     char op;
     std::string data;

@@ -1,3 +1,5 @@
+#include <exception>
+
 #include "iterator.h"
 #pragma once
 
@@ -10,7 +12,10 @@ Iterator<T, Cmp>::Iterator(std::shared_ptr<typename Set<T, Cmp>::Node> node) : n
 template <typename T, typename Cmp>
 Iterator<T, Cmp>& Iterator<T, Cmp>::operator++()
 {
-    // node = node->Next();
+    if (node)
+    {
+        node = node->next;
+    }
     return *this;
 }
 
@@ -25,7 +30,10 @@ Iterator<T, Cmp> Iterator<T, Cmp>::operator++(int)
 template <typename T, typename Cmp>
 Iterator<T, Cmp>& Iterator<T, Cmp>::operator--()
 {
-    // node = node->Prev();
+    if (node)
+    {
+        node = node->prev;
+    }
     return *this;
 }
 
@@ -40,12 +48,20 @@ Iterator<T, Cmp> Iterator<T, Cmp>::operator--(int)
 template <typename T, typename Cmp>
 const T& Iterator<T, Cmp>::operator*()
 {
+    if (!node)
+    {
+        throw std::runtime_error("operator*() to nullptr");
+    }
     return node->data;
 }
 
 template <typename T, typename Cmp>
 const T* Iterator<T, Cmp>::operator->()
 {
+    if (!node)
+    {
+        throw std::runtime_error("operator->() to nullptr");
+    }
     return &(node->data);
 }
 

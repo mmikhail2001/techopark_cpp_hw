@@ -29,27 +29,40 @@ private:
 
         T 		                data;
         size_t 	                height;
+        // для АВЛ-дерева
         std::shared_ptr<Node>	left;	
         std::shared_ptr<Node> 	right;
         std::shared_ptr<Node> 	parent;
+        // для двусвязного спика
+        std::shared_ptr<Node> 	next;
+        std::shared_ptr<Node> 	prev;
     };
 public:
     Set();
     ~Set();
-    size_type   size() const;
-    bool        empty() const;
-    void 	    Insert(const_reference);
-    bool 	    Has(const_reference) const;
-    void 	    Erase(const_reference);
-    iterator    begin() const;
-    iterator    end() const;
+    size_type       size() const;
+    bool            empty() const;
+    // проверяет наличие прежде чем insertInternal
+    void 	        insert(const_reference data);
+    // проверяет наличие прежде чем eraseInternal
+    iterator 	    find(const_reference data) const;
+    iterator 	    lower_bound(const_reference data) const;
+    void 	        erase(const_reference data);
+    iterator        begin() const;
+    iterator        end() const;
     
 private:
     friend class Iterator<T, Cmp>;
+    // корень дерева
     std::shared_ptr<Node>	m_root;
-    Cmp              m_cmp;
+    // узлы двусвязного списка
+    std::shared_ptr<Node>	m_first;
+    std::shared_ptr<Node>	m_last;
+    Cmp                     m_cmp;
     size_type               m_size = 0;
 
+    std::shared_ptr<Node> 	findInternal(const_reference data) const;
+    std::shared_ptr<Node> 	lower_boundInternal(const_reference data) const;
     std::shared_ptr<Node> 	eraseInternal(std::shared_ptr<Node> node, const_reference data);
     std::shared_ptr<Node> 	insertInternal(std::shared_ptr<Node> node, const_reference data);
     
@@ -59,14 +72,14 @@ private:
     std::shared_ptr<Node> 	rotateLeft(std::shared_ptr<Node> node);
     std::shared_ptr<Node> 	rotateRight(std::shared_ptr<Node> node);
 	
-    size_t 	getHeight(std::shared_ptr<Node> node) const;
-    void 	fixHeight(std::shared_ptr<Node> node);
+    size_t 	                getHeight(std::shared_ptr<Node> node) const;
+    void 	                fixHeight(std::shared_ptr<Node> node);
 
-    int 	getBalance(std::shared_ptr<Node> node) const;
+    int 	                getBalance(std::shared_ptr<Node> node) const;
     std::shared_ptr<Node> 	doBalance(std::shared_ptr<Node> node);
 
-    std::shared_ptr<Node> NextInternal(std::shared_ptr<Node> node) const;
-    std::shared_ptr<Node> PrevInternal(std::shared_ptr<Node> node) const;
+    std::shared_ptr<Node>   nextInternal(std::shared_ptr<Node> node) const;
+    std::shared_ptr<Node>   prevInternal(std::shared_ptr<Node> node) const;
     
 };
 

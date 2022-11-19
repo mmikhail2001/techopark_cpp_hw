@@ -44,3 +44,23 @@ TEST(AvlTree, TestBasicsFunctional)
 	EXPECT_TRUE (set.Has(-20));
 	EXPECT_TRUE (set.Has(20));
 }
+
+    // Set<int> set;
+    // set.insert(7);
+    // set.insert(9);
+    // set.insert(11);
+    // set.insert(13);
+    // set.insert(8);
+    // set.insert(12);
+    // set.insert(10);
+
+    // set.erase(7);
+    // set.erase(10);
+    // set.erase(13);
+
+    // auto it = set.find(8);
+    // for (; it != nullptr; it = it->next)
+    // {
+    //     std::cout << it->data << " ";
+    // }
+    // puts("");

@@ -1,6 +1,9 @@
 #pragma once
+
 #include <iostream>
 #include <memory>
+
+#include "iterator.h"
 
 template <typename T, typename Comparator = std::less<T>>
 class Set
@@ -8,7 +11,7 @@ class Set
     struct Node
     {
         Node(const T &data)
-        : data(data), height(1), left(nullptr), right(nullptr)
+        : data(data), height(1), left(nullptr), right(nullptr), parent(nullptr)
         {
         }
         
@@ -20,15 +23,35 @@ class Set
     };
     
 public:
+
+    using key_type          = T;
+    using value_type        = T;
+    using size_type         = std::size_t;
+    using difference_type   = std::ptrdiff_t;
+    using reference         = T&;
+    using const_reference   = const T&;
+    using iterator          = Iterator<T>;
+    // using const_iterator = 
+    // using reverse_iterator = 
+    // using const_reverse_iterator = 
+    
+
+
     Set();
     ~Set();
     void 	Insert(const T &data);
     bool 	Has(const T &data) const;
     void 	Erase(const T &data);
+    std::shared_ptr<Node> begin() const;
+    std::shared_ptr<Node> end() const;
+    
+    std::shared_ptr<Node> NextInternal(std::shared_ptr<Node> node) const;
+    std::shared_ptr<Node> PrevInternal(std::shared_ptr<Node> node) const;
     
 private:
     std::shared_ptr<Node>	m_root;
     Comparator              m_cmp;
+    friend class            Iterator<T>;
     
     std::shared_ptr<Node> 	eraseInternal(std::shared_ptr<Node> node, const T &data);
     std::shared_ptr<Node> 	insertInternal(std::shared_ptr<Node> node, const T &data);
@@ -44,8 +67,6 @@ private:
 
     int 	getBalance(std::shared_ptr<Node> node) const;
     std::shared_ptr<Node> 	doBalance(std::shared_ptr<Node> node);
-
-    std::shared_ptr<Node> Next(std::shared_ptr<Node> node) const;
     
 };
 

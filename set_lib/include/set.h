@@ -15,13 +15,14 @@ class Set
         {
         }
         std::shared_ptr<Node> Next();
-        // std::shared_ptr<Node> Prev();
+        std::shared_ptr<Node> Prev();
         
         T 		data;
         size_t 	height;
         std::shared_ptr<Node>	left;	
         std::shared_ptr<Node> 	right;
         std::shared_ptr<Node> 	parent;
+        friend class            Iterator<T>;
     };
     
 public:
@@ -47,13 +48,10 @@ public:
     std::shared_ptr<Node> begin() const;
     std::shared_ptr<Node> end() const;
     
-    std::shared_ptr<Node> NextInternal(std::shared_ptr<Node> node) const;
-    std::shared_ptr<Node> PrevInternal(std::shared_ptr<Node> node) const;
-    
 private:
     std::shared_ptr<Node>	m_root;
     Comparator              m_cmp;
-    friend class            Iterator<T>;
+    // friend class            Iterator<T>;
     
     std::shared_ptr<Node> 	eraseInternal(std::shared_ptr<Node> node, const T &data);
     std::shared_ptr<Node> 	insertInternal(std::shared_ptr<Node> node, const T &data);

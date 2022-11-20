@@ -17,8 +17,11 @@ public:
     using const_pointer     = const T*;
     using iterator_category = std::bidirectional_iterator_tag;
 
-    Iterator() = default;
-    Iterator(std::shared_ptr<typename Set<T, Cmp>::Node> node);
+    /*
+        - Принимаем root, чтобы можно было добраться до last, если содержим ноду-маркер с is_end = Y
+        - Наверное, можно в качестве маркера сделать Node с указателями такими же, как у root, но с is_end = Y
+    */
+    Iterator(std::shared_ptr<typename Set<T, Cmp>::Node> node, std::shared_ptr<typename Set<T, Cmp>::Node> root);
     Iterator(const Iterator &) = default;
 
     Iterator&       operator=(const Iterator &) = default;
@@ -35,6 +38,7 @@ public:
     bool            operator!=(const Iterator &);
 private:
     std::shared_ptr<typename  Set<T, Cmp>::Node> node;
+    std::shared_ptr<typename  Set<T, Cmp>::Node> root;
 };
 
 #include "iterator_definition.h"

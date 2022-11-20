@@ -7,6 +7,7 @@
 template <typename T, typename Cmp>
 Set<T, Cmp>::Set(Cmp cmp) : m_cmp(cmp), m_root(nullptr) 
 {	
+	setNodeEnd();
 }
 
 template <typename T, typename Cmp>
@@ -17,6 +18,7 @@ Set<T, Cmp>::Set(InputIt first, InputIt last, Cmp cmp) : m_cmp(cmp)
 	{
 		insert(*first);
 	}
+	setNodeEnd();
 }
 
 template <typename T, typename Cmp>
@@ -26,6 +28,7 @@ Set<T, Cmp>::Set(std::initializer_list<T> const &init_list)
 	{
 		insert(elem);
 	}
+	setNodeEnd();
 }
 
 template <typename T, typename Cmp>
@@ -36,6 +39,7 @@ Set<T, Cmp>::Set(Set<T, Cmp_> const &other)
 	{
 		insert(elem);
 	}
+	setNodeEnd();
 }
 
 
@@ -46,6 +50,7 @@ Set<T, Cmp>::Set(Set const &other)
 	{
 		insert(elem);
 	}
+	setNodeEnd();
 }
 
 template <typename T, typename Cmp>
@@ -79,16 +84,29 @@ void Set<T, Cmp>::insert(const T &data)
 	}
 	++m_size;
 	m_root = insertInternal(m_root, data);
-	auto it = findInternal(data);
-	it->prev = prevInternal(it);
-	if (it->prev)
+	auto ptr = findInternal(data);
+	// обновление m_first
+	if (!m_first_value || m_cmp(ptr->data, *m_first_value))
 	{
-		it->prev->next = it;
+		m_first = ptr;
+		m_first_value = ptr->data;
 	}
-	it->next = nextInternal(it);
-	if (it->next)
+	// обновление m_last
+	if (!m_last_value || m_cmp(*m_last_value, ptr->data))
 	{
-		it->next->prev = it;
+		m_last = ptr;
+		m_last_value = ptr->data;
+	}
+	// установка prev и next
+	ptr->prev = prevInternal(ptr);
+	if (ptr->prev)
+	{
+		ptr->prev->next = ptr;
+	}
+	ptr->next = nextInternal(ptr);
+	if (ptr->next)
+	{
+		ptr->next->prev = ptr;
 	}
 }
     
@@ -96,14 +114,14 @@ template <typename T, typename Cmp>
 Iterator<T, Cmp>  Set<T, Cmp>::find(const T &data) const
 {
     auto ptr = findInternal(data);
-	return ptr ? Iterator<T, Cmp>(ptr) : end();
+	return ptr ? Iterator<T, Cmp>(ptr, m_root) : end();
 }
 
 template <typename T, typename Cmp>
 Iterator<T, Cmp> Set<T, Cmp>::lower_bound(const T &data) const
 {
     auto ptr = lower_boundInternal(data);
-	return ptr ? Iterator<T, Cmp>(ptr) : end();
+	return ptr ? Iterator<T, Cmp>(ptr, m_root) : end();
 }
 
 template <typename T, typename Cmp>
@@ -151,26 +169,28 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::lower_boundInternal(con
 template <typename T, typename Cmp>
 void Set<T, Cmp>::erase(const T &data)
 {	
-	auto it = findInternal(data);
-	if (it != nullptr)
+	auto ptr = findInternal(data);
+	if (ptr != nullptr)
 	{
 		// отдельная функция - удалить из списка
-		auto prevNode = prevInternal(it);
-		auto nextNode = nextInternal(it);
-		if (prevNode == nullptr)
+		auto prevNode = prevInternal(ptr);
+		auto nextNode = nextInternal(ptr);
+		if ( !(prevNode == nullptr && nextNode == nullptr) )
 		{
-			nextNode->prev = nullptr;
+			if (prevNode == nullptr)
+			{
+				nextNode->prev = nullptr;
+			}
+			if (nextNode == nullptr)
+			{
+				prevNode->next = nullptr;
+			}
+			if (prevNode && nextNode)
+			{
+				prevNode->next = nextNode;
+				nextNode->prev = prevNode;
+			}
 		}
-		if (nextNode == nullptr)
-		{
-			prevNode->next = nullptr;
-		}
-		if (prevNode && nextNode)
-		{
-			prevNode->next = nextNode;
-			nextNode->prev = prevNode;
-		}
-		// prevNode->next = nextNode;
 		--m_size;
 		m_root = eraseInternal(m_root, data);
 	}
@@ -368,43 +388,22 @@ Iterator<T, Cmp>  Set<T, Cmp>::begin() const
 	{
 		return end();
 	}
-	// можно оптимизировать
-	// при вставке (insert) обновлять минимальный (максимальный) элемент
-	std::shared_ptr<Node> node = m_root;
-	while (node->left)
-    {
-		node = node->left;
-    }
-	return Iterator<T, Cmp>(node);
+	return Iterator<T, Cmp>(m_first, m_root);
 }
 
 template <typename T, typename Cmp>
 Iterator<T, Cmp>  Set<T, Cmp>::end() const
 {
-	return Iterator<T, Cmp>(nullptr);
+	return Iterator<T, Cmp>(m_node_end, m_root);
 }
 
 template <typename T, typename Cmp>
 std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::nextInternal(std::shared_ptr<Node> node) const
 {
-	// findMin() ?
-	if (node == nullptr)
-	{
-		std::shared_ptr<Node> node = m_root;
-		while (node->left)
-		{
-			node = node->left;
-		}
-		return node;
-	}
 	if (node->right)
 	{
 		node = node->right;
-		while (node->left)
-		{
-			node = node->left;
-		}
-		return node;
+		return getLeftMost(node);
 	}
 	else
 	{
@@ -421,24 +420,10 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::nextInternal(std::share
 template <typename T, typename Cmp>
 std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::prevInternal(std::shared_ptr<Node> node) const
 {
-	// findMax() ?
-	if (node == nullptr)
-	{
-		std::shared_ptr<Node> node = m_root;
-		while (node->right)
-		{
-			node = node->right;
-		}
-		return node;
-	}
 	if (node->left)
 	{
 		node = node->left;
-		while (node->right)
-		{
-			node = node->right;
-		}
-		return node;
+		return getRightMost(node);
 	}
 	else
 	{
@@ -464,4 +449,32 @@ bool Set<T, Cmp>::empty() const
 	return m_size == 0;
 }
 
+template <typename T, typename Cmp>
+bool Set<T, Cmp>::operator==(Set const &other) const
+{
+	auto itOther = other.begin();
+	for (auto it = begin(); it != end(); ++it)
+	{
+		if (*itOther != *it)
+		{
+			return false;
+		}
+		itOther++;
+	}
+	return true;
+}
+
+template <typename T, typename Cmp>
+bool Set<T, Cmp>::operator!=(Set const &other) const
+{
+	return !(*this == other);
+}
+
+
+
+template <typename T, typename Cmp>
+void Set<T, Cmp>::setNodeEnd()
+{
+	m_node_end = std::make_shared<Node>(0, Y);
+}
 

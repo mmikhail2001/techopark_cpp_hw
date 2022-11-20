@@ -3,6 +3,9 @@
 #include <iostream>
 #include <memory>
 #include <type_traits>
+#include <optional>
+
+enum IS_END {N = 0, Y = 1};
 
 template <typename T, typename Cmp>
 class Iterator;
@@ -23,8 +26,8 @@ public:
 private:
     struct Node
     {
-        Node(const T &data)
-        : data(data), height(1)
+        Node(const T &data, IS_END is_end = N)
+        : data(data), height(1), is_end(is_end)
         {
         }
 
@@ -37,6 +40,7 @@ private:
         // для двусвязного спика
         std::shared_ptr<Node> 	next;
         std::shared_ptr<Node> 	prev;
+        IS_END                  is_end;
     };
 public:
     Set(Cmp cmp = Cmp{});
@@ -58,16 +62,24 @@ public:
     void 	        erase(const_reference data);
     iterator        begin() const;
     iterator        end() const;
-    
+    bool            operator==(Set<T, Cmp> const &other) const;
+    bool            operator!=(Set<T, Cmp> const &other) const;
 private:
+    std::shared_ptr<Node>	m_node_end;
+    std::shared_ptr<Node>	m_node_beg;
     friend class Iterator<T, Cmp>;
     // корень дерева
     std::shared_ptr<Node>	m_root;
     // узлы двусвязного списка
     std::shared_ptr<Node>	m_first;
+    std::optional<key_type> m_first_value = std::nullopt;
     std::shared_ptr<Node>	m_last;
+    std::optional<key_type> m_last_value = std::nullopt;
+
     Cmp                     m_cmp;
     size_type               m_size = 0;
+
+    void                    setNodeEnd();
 
     std::shared_ptr<Node> 	findInternal(const_reference data) const;
     std::shared_ptr<Node> 	lower_boundInternal(const_reference data) const;
@@ -90,6 +102,24 @@ private:
     std::shared_ptr<Node>   prevInternal(std::shared_ptr<Node> node) const;
 
     void                    Swap(Set &other);
+
+    static std::shared_ptr<Node>   getLeftMost(std::shared_ptr<Node> node)
+    {
+        while (node->left)
+        {
+            node = node->left;
+        }
+        return node;
+    }
+    static std::shared_ptr<Node>   getRightMost(std::shared_ptr<Node> node)
+    {
+        while (node->right)
+        {
+            node = node->right;
+        }
+        return node;
+    }
+
     
 };
 

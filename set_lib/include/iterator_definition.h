@@ -4,8 +4,6 @@
 
 #include "iterator.h"
 
-
-
 template <typename T, typename Cmp>
 Iterator<T, Cmp>::Iterator(typename Set<T, Cmp>::Node* node, typename Set<T, Cmp>::Node* root, bool after_end, bool before_begin) 
 : node(node), root(root), before_begin(before_begin), after_end(after_end)

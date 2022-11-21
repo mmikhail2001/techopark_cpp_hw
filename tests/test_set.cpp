@@ -175,3 +175,22 @@ TEST(TestBasicsFunctional, Test_Compatibility_with_STL_Vector)
     */
 }
 
+extern void check_constness();
+extern void check_copy_correctness();
+extern void check_empty();
+extern void check_iterators();
+extern void check_operator_less();
+extern void check_destructor();
+extern void check_erase();
+
+TEST(TestBasicsFunctional, Test_Alexey_Halaidzhy)
+{
+    // в тест кейсах exit(0) при ошибках, поэтому фейл будет отображен
+    check_constness();
+    check_copy_correctness();
+    check_empty();
+    check_iterators();
+    check_operator_less();
+    check_destructor();
+    check_erase();
+}

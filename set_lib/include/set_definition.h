@@ -55,11 +55,12 @@ Set<T, Cmp>::~Set()
 	Node *node = m_first;
 	while (node)
 	{
-		Node *tmp = node;
-		delete tmp;
-		node = node->next;
+		Node *tmp = node->next;
+		delete node;
+		node = tmp;
 	}
 }
+
 
 template <typename T, typename Cmp>
 Set<T, Cmp>& Set<T, Cmp>::operator=(Set other)
@@ -133,7 +134,7 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::findInternal(const T &data) const
     Node* node = m_root;
 	while (node)
 	{
-		if (node->data == data)
+		if (!m_cmp(node->data, data) && !m_cmp(data, node->data))
 		{
 			return node;
 		}
@@ -178,6 +179,7 @@ void Set<T, Cmp>::erase(const T &data)
 		// отдельная функция - удалить из списка
 		auto prevNode = prevInternal(ptr);
 		auto nextNode = nextInternal(ptr);
+		// извлекаем из списка
 		if ( !(prevNode == nullptr && nextNode == nullptr) )
 		{
 			if (prevNode == nullptr)
@@ -195,7 +197,9 @@ void Set<T, Cmp>::erase(const T &data)
 			}
 		}
 		--m_size;
+		// извлекаем из дерева и удаляем
 		m_root = eraseInternal(m_root, data);
+		m_first = getLeftMost(m_root);
 	}
 }
 
@@ -229,6 +233,7 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::eraseInternal(Node* node, const T &data
 		
 		if (!right)
         {
+			delete node;
 			return left;
         }
 		
@@ -255,6 +260,10 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::eraseInternal(Node* node, const T &data
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node* Set<T, Cmp>::findReplacement(Node* node) const
 {
+	if (!node)
+	{
+		return nullptr;
+	}
 	while (node->left)
     {
 		node = node->left;
@@ -265,6 +274,10 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::findReplacement(Node* node) const
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node* Set<T, Cmp>::detachReplacement(Node* node)
 {
+	if (!node)
+	{
+		return nullptr;
+	}
 	if (!node->left)
     {
 		return node->right;
@@ -314,6 +327,10 @@ void Set<T, Cmp>::fixHeight(Node* node)
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node* Set<T, Cmp>::rotateLeft(Node* node)
 {
+	if (!node)
+	{
+		return nullptr;
+	}
 	Node* tmp = node->right;
 	node->right = tmp->left;
 	if (tmp->left)
@@ -331,6 +348,10 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::rotateLeft(Node* node)
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node* Set<T, Cmp>::rotateRight(Node* node)
 {
+	if (!node)
+	{
+		return nullptr;
+	}
 	// node = a
 	// tmp = node->left = b
 	Node* tmp = node->left;
@@ -357,6 +378,10 @@ int Set<T, Cmp>::getBalance(Node* node) const
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node* Set<T, Cmp>::doBalance(Node* node)
 {
+	if (!node)
+	{
+		return nullptr;
+	}
 	fixHeight(node);
 	
 	switch (getBalance(node))
@@ -404,6 +429,10 @@ Iterator<T, Cmp>  Set<T, Cmp>::end() const
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node* Set<T, Cmp>::nextInternal(Node* node) const
 {
+	if (!node)
+	{
+		return nullptr;
+	}
 	if (node->right)
 	{
 		node = node->right;
@@ -424,6 +453,10 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::nextInternal(Node* node) const
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node* Set<T, Cmp>::prevInternal(Node* node) const
 {
+	if (!node)
+	{
+		return nullptr;
+	}
 	if (node->left)
 	{
 		node = node->left;
@@ -474,3 +507,15 @@ bool Set<T, Cmp>::operator!=(Set const &other) const
 	return !(*this == other);
 }
 
+
+template <typename T, typename Cmp>
+void Set<T, Cmp>::show()
+{
+	Node *node = m_first;
+	while (node)
+	{
+		std::cout << node->data << " ";
+		node = node->next;
+	}
+	std::cout << std::endl;
+}

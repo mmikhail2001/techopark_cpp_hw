@@ -29,6 +29,10 @@ private:
         : data(data), height(1), left(nullptr), right(nullptr), parent(nullptr), next(nullptr), prev(nullptr)
         {
         }
+        ~Node()
+        {
+            left = right = parent = next = prev = nullptr;
+        }
 
         T 		                data;
         size_t 	                height;
@@ -41,6 +45,7 @@ private:
         Node* 	prev;
     };
 public:
+    void show();
     Set(Cmp cmp = Cmp{});
     template <typename InputIt, typename = typename std::enable_if<std::is_same<typename   std::iterator_traits<InputIt>::value_type, T>::value>::type>
     Set(InputIt first, InputIt last, Cmp cmp = Cmp{});
@@ -52,19 +57,20 @@ public:
     ~Set();
     size_type       size() const;
     bool            empty() const;
-    // проверяет наличие прежде чем insertInternal
+
     void 	        insert(const_reference data);
-    // проверяет наличие прежде чем eraseInternal
+    void 	        erase(const_reference data);
+    
     iterator 	    find(const_reference data) const;
     iterator 	    lower_bound(const_reference data) const;
-    void 	        erase(const_reference data);
+    
+
     iterator        begin() const;
     iterator        end() const;
+    
     bool            operator==(Set<T, Cmp> const &other) const;
     bool            operator!=(Set<T, Cmp> const &other) const;
 private:
-    // Node*	m_node_end;
-    // Node*	m_node_beg;
     friend class Iterator<T, Cmp>;
     // корень дерева
     Node*	m_root = nullptr;
@@ -103,6 +109,10 @@ private:
 
     static Node*   getLeftMost(Node* node)
     {
+        if (!node)
+        {
+            return nullptr;
+        }
         while (node->left)
         {
             node = node->left;
@@ -111,12 +121,17 @@ private:
     }
     static Node*   getRightMost(Node* node)
     {
+        if (!node)
+        {
+            return nullptr;
+        }
         while (node->right)
         {
             node = node->right;
         }
         return node;
     }
+
 
     
 };

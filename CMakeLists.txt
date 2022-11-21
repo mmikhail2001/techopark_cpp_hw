@@ -15,11 +15,12 @@ add_subdirectory(set_lib)
 add_executable(${PROJECT_NAME} main.cpp)
 
 if(TEST_OPT)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -fPIC -O0")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -coverage -lgcov" )
 endif()
 
 if(DEBUG_OPT)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g -fPIC -O0" )
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g2 -fPIC -O0")
 endif()
 
 if(SANITIZE_OPT)

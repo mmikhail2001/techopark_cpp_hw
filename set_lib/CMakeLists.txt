@@ -9,9 +9,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 if(TEST_OPT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -fPIC -O0")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -coverage -lgcov" )
-elseif(DEBUG_OPT)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC -O0")
-else() 
+endif()
+
+if(DEBUG_OPT)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g2 -fPIC -O0")
+endif()
+
+if(NOT DEBUG_OPT AND NOT TEST_OPT)
     # релиз-версия
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O3")
 endif()

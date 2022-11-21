@@ -2,14 +2,6 @@
 #include "iterator.h"
 #include <vector>
 
-/*
-    Задачи
-    - Маркерный Node - указатель на узел после последнего
-        - Сделали +-
-    - Маркерный Node - указатель на узел перед первым (для реверсивного итератра)
-        - Не сделали
-*/
-
 using std::cout;
 using std::endl;
 
@@ -32,39 +24,4 @@ int main(int argc, const char * argv[])
     {
         std::cout << elem << std::endl;
     }
-
-    // auto it = set.begin();
-    
-    // --it;
-    
-    // ++it;
-
-    // cout << *it << endl;
-
-    // auto it2 = set.end();
-
-    // it2--;
-    // cout << *it2 << endl;
-    // it2++;
-    // it2++;
-    // it2++;
-
-    // it2--;
-    // cout << *it2 << endl;
-
-    set.erase(1);
-    set.erase(5);
-    set.erase(6);
-    set.erase(7);
-
-    for (auto elem : set)
-    {
-        std::cout << elem << std::endl;
-    }
-
-    // for (auto elem : set)
-    // {
-    //     std::cout << elem << " ";
-    // }
-    // return 0;
 }

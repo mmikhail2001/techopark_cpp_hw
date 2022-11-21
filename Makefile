@@ -40,7 +40,7 @@ coverage:
 	cd ${BUILD_DIR} && lcov -t "testing_${LIB_DIR}" -o coverage.info -c -d ${LIB_DIR} && genhtml -o report coverage.info
 
 valgrind_tests:
-	valgrind --tool=memcheck --leak-check=yes --error-exitcode=1 ./${BUILD_DIR}/${TESTS_DIR}/${TESTS_EXE}
+	valgrind --tool=memcheck --leak-check=yes ./${BUILD_DIR}/${TESTS_DIR}/${TESTS_EXE}
 
 valgrind_target:
 	valgrind --tool=memcheck -s --leak-check=yes --error-exitcode=1 ./${BUILD_DIR}/${TARGET_EXE}
@@ -51,5 +51,3 @@ scan_build:
 formating:
 	clang-format -i -style=file  main.cpp ${LIB_DIR}/include/*.h ${LIB_DIR}/src/*.cpp ${TESTS_DIR}/*.cpp
 
-
-# clang-format -i -style="{BasedOnStyle: Microsoft, IndentWidth: 4, UseTab: Always, AccessModifierOffset: 0}"  main.cpp ${LIB_DIR}/include/*.h ${LIB_DIR}/src/*.cpp ${TESTS_DIR}/*.cpp

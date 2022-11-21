@@ -19,13 +19,10 @@ public:
     using const_pointer     = const T*;
     using iterator_category = std::bidirectional_iterator_tag;
 
-    /*
-        - Принимаем root, чтобы можно было добраться до last, если содержим ноду-маркер с is_end = Y
-        - Наверное, можно в качестве маркера сделать Node с указателями такими же, как у root, но с is_end = Y
-    */
     Iterator(typename  Set<T, Cmp>::Node* node, 
         typename  Set<T, Cmp>::Node* root, 
         bool after_end = false, bool before_begin = false);
+    Iterator() = default;
 
     Iterator&       operator=(const Iterator &) = default;
  

@@ -28,30 +28,39 @@ void eq(T left, T right)
 int main(int argc, const char * argv[]) 
 {
     Set<int> set = {1, 5, 3, 7, 34, 88, 23};
+    for (auto elem : set)
+    {
+        std::cout << elem << std::endl;
+    }
 
-    auto it = set.begin();
+    // auto it = set.begin();
     
-    --it;
+    // --it;
     
-    ++it;
+    // ++it;
 
-    cout << *it << endl;
+    // cout << *it << endl;
 
-    auto it2 = set.end();
+    // auto it2 = set.end();
 
-    it2--;
-    cout << *it2 << endl;
-    it2++;
-    it2++;
-    it2++;
+    // it2--;
+    // cout << *it2 << endl;
+    // it2++;
+    // it2++;
+    // it2++;
 
-    it2--;
-    cout << *it2 << endl;
+    // it2--;
+    // cout << *it2 << endl;
 
-    // set.erase(1);
-    // set.erase(5);
-    // set.erase(6);
-    // set.erase(7);
+    set.erase(1);
+    set.erase(5);
+    set.erase(6);
+    set.erase(7);
+
+    for (auto elem : set)
+    {
+        std::cout << elem << std::endl;
+    }
 
     // for (auto elem : set)
     // {

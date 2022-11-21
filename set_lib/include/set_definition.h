@@ -50,6 +50,18 @@ Set<T, Cmp>::Set(Set const &other)
 }
 
 template <typename T, typename Cmp>
+Set<T, Cmp>::~Set()
+{
+	Node *node = m_first;
+	while (node)
+	{
+		Node *tmp = node;
+		delete tmp;
+		node = node->next;
+	}
+}
+
+template <typename T, typename Cmp>
 Set<T, Cmp>& Set<T, Cmp>::operator=(Set other)
 {
 	Swap(other);
@@ -64,11 +76,6 @@ void Set<T, Cmp>::Swap(Set &other)
 	std::swap(m_last, other.m_last);
 	std::swap(m_cmp, other.m_cmp);
 	std::swap(m_size, other.m_size);
-}
-
-template <typename T, typename Cmp>
-Set<T, Cmp>::~Set()
-{
 }
 
 template <typename T, typename Cmp>
@@ -121,9 +128,9 @@ Iterator<T, Cmp> Set<T, Cmp>::lower_bound(const T &data) const
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::findInternal(const T &data) const
+typename Set<T, Cmp>::Node* Set<T, Cmp>::findInternal(const T &data) const
 {
-    std::shared_ptr<Node> node = m_root;
+    Node* node = m_root;
 	while (node)
 	{
 		if (node->data == data)
@@ -143,10 +150,10 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::findInternal(const T &d
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::lower_boundInternal(const T &data) const
+typename Set<T, Cmp>::Node* Set<T, Cmp>::lower_boundInternal(const T &data) const
 {
-    std::shared_ptr<Node> node = m_root;
-	std::shared_ptr<Node> result = nullptr;
+    Node* node = m_root;
+	Node* result = nullptr;
 	while (node)
 	{
 		if (m_cmp(node->data, data))
@@ -193,7 +200,7 @@ void Set<T, Cmp>::erase(const T &data)
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::eraseInternal(std::shared_ptr<Node> node, const T &data)
+typename Set<T, Cmp>::Node* Set<T, Cmp>::eraseInternal(Node* node, const T &data)
 {
 	if (!node)
     {
@@ -217,15 +224,15 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::eraseInternal(std::shar
 	}
 	else
 	{
-		std::shared_ptr<Node> left = node->left;
-		std::shared_ptr<Node> right = node->right;
+		Node* left = node->left;
+		Node* right = node->right;
 		
 		if (!right)
         {
 			return left;
         }
 		
-		std::shared_ptr<Node> replace = findReplacement(right);
+		Node* replace = findReplacement(right);
 		replace->right = detachReplacement(right);
 		if (replace->right)
 		{
@@ -238,6 +245,7 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::eraseInternal(std::shar
 		}
 		// на выходе из рекурсии редактируем parent
 		replace->parent = node->parent; 
+		delete node;
 		
 		return doBalance(replace);
 	}
@@ -245,7 +253,7 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::eraseInternal(std::shar
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::findReplacement(std::shared_ptr<Node> node) const
+typename Set<T, Cmp>::Node* Set<T, Cmp>::findReplacement(Node* node) const
 {
 	while (node->left)
     {
@@ -255,7 +263,7 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::findReplacement(std::sh
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::detachReplacement(std::shared_ptr<Node> node)
+typename Set<T, Cmp>::Node* Set<T, Cmp>::detachReplacement(Node* node)
 {
 	if (!node->left)
     {
@@ -270,11 +278,11 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::detachReplacement(std::
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::insertInternal(std::shared_ptr<Node> node, const T &data)
+typename Set<T, Cmp>::Node* Set<T, Cmp>::insertInternal(Node* node, const T &data)
 {
 	if (!node)
     {
-		return std::make_shared<Node>(data);
+    	return new Node(data);
     }
 	if (m_cmp(data, node->data))
 	{
@@ -292,21 +300,21 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::insertInternal(std::sha
 }
 
 template <typename T, typename Cmp>
-size_t Set<T, Cmp>::getHeight(std::shared_ptr<Node> node) const
+size_t Set<T, Cmp>::getHeight(Node* node) const
 {
 	return node ? node->height : 0;
 }
 
 template <typename T, typename Cmp>
-void Set<T, Cmp>::fixHeight(std::shared_ptr<Node> node)
+void Set<T, Cmp>::fixHeight(Node* node)
 {
 	node->height = std::max(getHeight(node->left), getHeight(node->right)) + 1;
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::rotateLeft(std::shared_ptr<Node> node)
+typename Set<T, Cmp>::Node* Set<T, Cmp>::rotateLeft(Node* node)
 {
-	std::shared_ptr<Node> tmp = node->right;
+	Node* tmp = node->right;
 	node->right = tmp->left;
 	if (tmp->left)
 	{
@@ -321,11 +329,11 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::rotateLeft(std::shared_
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::rotateRight(std::shared_ptr<Node> node)
+typename Set<T, Cmp>::Node* Set<T, Cmp>::rotateRight(Node* node)
 {
 	// node = a
 	// tmp = node->left = b
-	std::shared_ptr<Node> tmp = node->left;
+	Node* tmp = node->left;
 	node->left = tmp->right; // теперь a->left = C
 	if (tmp->right)
 	{
@@ -341,13 +349,13 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::rotateRight(std::shared
 }
 
 template <typename T, typename Cmp>
-int Set<T, Cmp>::getBalance(std::shared_ptr<Node> node) const
+int Set<T, Cmp>::getBalance(Node* node) const
 {
 	return getHeight(node->right) - getHeight(node->left);
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::doBalance(std::shared_ptr<Node> node)
+typename Set<T, Cmp>::Node* Set<T, Cmp>::doBalance(Node* node)
 {
 	fixHeight(node);
 	
@@ -394,7 +402,7 @@ Iterator<T, Cmp>  Set<T, Cmp>::end() const
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::nextInternal(std::shared_ptr<Node> node) const
+typename Set<T, Cmp>::Node* Set<T, Cmp>::nextInternal(Node* node) const
 {
 	if (node->right)
 	{
@@ -403,7 +411,7 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::nextInternal(std::share
 	}
 	else
 	{
-		std::shared_ptr<Node> needed_parent = node->parent;
+		Node* needed_parent = node->parent;
 		while (needed_parent && needed_parent->left != node)
 		{
 			node = needed_parent; 
@@ -414,7 +422,7 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::nextInternal(std::share
 }
 
 template <typename T, typename Cmp>
-std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::prevInternal(std::shared_ptr<Node> node) const
+typename Set<T, Cmp>::Node* Set<T, Cmp>::prevInternal(Node* node) const
 {
 	if (node->left)
 	{
@@ -423,7 +431,7 @@ std::shared_ptr<typename Set<T, Cmp>::Node> Set<T, Cmp>::prevInternal(std::share
 	}
 	else
 	{
-		std::shared_ptr<Node> needed_parent = node->parent;
+		Node* needed_parent = node->parent;
 		while (needed_parent && needed_parent->right != node)
 		{
 			node = needed_parent; 

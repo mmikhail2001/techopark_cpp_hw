@@ -26,19 +26,19 @@ private:
     struct Node
     {
         Node(const T &data)
-        : data(data), height(1)
+        : data(data), height(1), left(nullptr), right(nullptr), parent(nullptr), next(nullptr), prev(nullptr)
         {
         }
 
         T 		                data;
         size_t 	                height;
         // для АВЛ-дерева
-        std::shared_ptr<Node>	left;	
-        std::shared_ptr<Node> 	right;
-        std::shared_ptr<Node> 	parent;
+        Node*	left;	
+        Node* 	right;
+        Node* 	parent;
         // для двусвязного спика
-        std::shared_ptr<Node> 	next;
-        std::shared_ptr<Node> 	prev;
+        Node* 	next;
+        Node* 	prev;
     };
 public:
     Set(Cmp cmp = Cmp{});
@@ -63,15 +63,15 @@ public:
     bool            operator==(Set<T, Cmp> const &other) const;
     bool            operator!=(Set<T, Cmp> const &other) const;
 private:
-    // std::shared_ptr<Node>	m_node_end;
-    // std::shared_ptr<Node>	m_node_beg;
+    // Node*	m_node_end;
+    // Node*	m_node_beg;
     friend class Iterator<T, Cmp>;
     // корень дерева
-    std::shared_ptr<Node>	m_root;
+    Node*	m_root = nullptr;
     // узлы двусвязного списка
-    std::shared_ptr<Node>	m_first;
+    Node*	m_first = nullptr;
     std::optional<key_type> m_first_value = std::nullopt;
-    std::shared_ptr<Node>	m_last;
+    Node*	m_last = nullptr;
     std::optional<key_type> m_last_value = std::nullopt;
 
     Cmp                     m_cmp;
@@ -79,29 +79,29 @@ private:
 
     void                    setNodeEnd();
 
-    std::shared_ptr<Node> 	findInternal(const_reference data) const;
-    std::shared_ptr<Node> 	lower_boundInternal(const_reference data) const;
-    std::shared_ptr<Node> 	eraseInternal(std::shared_ptr<Node> node, const_reference data);
-    std::shared_ptr<Node> 	insertInternal(std::shared_ptr<Node> node, const_reference data);
+    Node* 	findInternal(const_reference data) const;
+    Node* 	lower_boundInternal(const_reference data) const;
+    Node* 	eraseInternal(Node* node, const_reference data);
+    Node* 	insertInternal(Node* node, const_reference data);
     
-    std::shared_ptr<Node> 	detachReplacement(std::shared_ptr<Node> node);
-    std::shared_ptr<Node> 	findReplacement(std::shared_ptr<Node> node) const;
+    Node* 	detachReplacement(Node* node);
+    Node* 	findReplacement(Node* node) const;
 	
-    std::shared_ptr<Node> 	rotateLeft(std::shared_ptr<Node> node);
-    std::shared_ptr<Node> 	rotateRight(std::shared_ptr<Node> node);
+    Node* 	rotateLeft(Node* node);
+    Node* 	rotateRight(Node* node);
 	
-    size_t 	                getHeight(std::shared_ptr<Node> node) const;
-    void 	                fixHeight(std::shared_ptr<Node> node);
+    size_t 	                getHeight(Node* node) const;
+    void 	                fixHeight(Node* node);
 
-    int 	                getBalance(std::shared_ptr<Node> node) const;
-    std::shared_ptr<Node> 	doBalance(std::shared_ptr<Node> node);
+    int 	                getBalance(Node* node) const;
+    Node* 	doBalance(Node* node);
 
-    std::shared_ptr<Node>   nextInternal(std::shared_ptr<Node> node) const;
-    std::shared_ptr<Node>   prevInternal(std::shared_ptr<Node> node) const;
+    Node*   nextInternal(Node* node) const;
+    Node*   prevInternal(Node* node) const;
 
     void                    Swap(Set &other);
 
-    static std::shared_ptr<Node>   getLeftMost(std::shared_ptr<Node> node)
+    static Node*   getLeftMost(Node* node)
     {
         while (node->left)
         {
@@ -109,7 +109,7 @@ private:
         }
         return node;
     }
-    static std::shared_ptr<Node>   getRightMost(std::shared_ptr<Node> node)
+    static Node*   getRightMost(Node* node)
     {
         while (node->right)
         {

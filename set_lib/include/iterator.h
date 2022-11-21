@@ -23,8 +23,8 @@ public:
         - Принимаем root, чтобы можно было добраться до last, если содержим ноду-маркер с is_end = Y
         - Наверное, можно в качестве маркера сделать Node с указателями такими же, как у root, но с is_end = Y
     */
-    Iterator(std::shared_ptr<typename Set<T, Cmp>::Node> node, 
-        std::shared_ptr<typename Set<T, Cmp>::Node> root, 
+    Iterator(typename  Set<T, Cmp>::Node* node, 
+        typename  Set<T, Cmp>::Node* root, 
         bool after_end = false, bool before_begin = false);
 
     Iterator&       operator=(const Iterator &) = default;
@@ -40,8 +40,8 @@ public:
     bool            operator==(const Iterator &);
     bool            operator!=(const Iterator &);
 private:
-    std::shared_ptr<typename  Set<T, Cmp>::Node> node;
-    std::shared_ptr<typename  Set<T, Cmp>::Node> root;
+    typename  Set<T, Cmp>::Node* node;
+    typename  Set<T, Cmp>::Node* root;
     bool before_begin   = false;
     bool after_end      = false; 
 };

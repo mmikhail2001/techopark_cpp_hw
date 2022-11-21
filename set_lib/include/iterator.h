@@ -1,5 +1,7 @@
-#include "set.h"
 #pragma once
+
+#include "set.h"
+
 
 template <typename T, typename Cmp>
 class Iterator
@@ -21,8 +23,9 @@ public:
         - Принимаем root, чтобы можно было добраться до last, если содержим ноду-маркер с is_end = Y
         - Наверное, можно в качестве маркера сделать Node с указателями такими же, как у root, но с is_end = Y
     */
-    Iterator(std::shared_ptr<typename Set<T, Cmp>::Node> node, std::shared_ptr<typename Set<T, Cmp>::Node> root);
-    Iterator(const Iterator &) = default;
+    Iterator(std::shared_ptr<typename Set<T, Cmp>::Node> node, 
+        std::shared_ptr<typename Set<T, Cmp>::Node> root, 
+        bool after_end = false, bool before_begin = false);
 
     Iterator&       operator=(const Iterator &) = default;
  
@@ -39,6 +42,8 @@ public:
 private:
     std::shared_ptr<typename  Set<T, Cmp>::Node> node;
     std::shared_ptr<typename  Set<T, Cmp>::Node> root;
+    bool before_begin   = false;
+    bool after_end      = false; 
 };
 
 #include "iterator_definition.h"

@@ -1,25 +1,34 @@
+#pragma once
+
 #include <exception>
 
 #include "iterator.h"
-#pragma once
+
 
 
 template <typename T, typename Cmp>
-Iterator<T, Cmp>::Iterator(std::shared_ptr<typename Set<T, Cmp>::Node> node, std::shared_ptr<typename Set<T, Cmp>::Node> root) : node(node), root(root) 
+Iterator<T, Cmp>::Iterator(std::shared_ptr<typename Set<T, Cmp>::Node> node, std::shared_ptr<typename Set<T, Cmp>::Node> root, bool after_end, bool before_begin) 
+: node(node), root(root), before_begin(before_begin), after_end(after_end)
 {
 }
 
 template <typename T, typename Cmp>
 Iterator<T, Cmp>& Iterator<T, Cmp>::operator++()
 {
-    if (node->next)
+    if (node)
     {
         node = node->next;
+        if (!node)
+        {
+            after_end = true;
+        }
     }
-    else
+    else if (before_begin)
     {
-        node = std::make_shared<typename  Set<T, Cmp>::Node>(0, Y);
+        node = Set<T, Cmp>::getLeftMost(root);
+        before_begin = false;
     }
+    // after_end
     return *this;
 }
 
@@ -34,14 +43,21 @@ Iterator<T, Cmp> Iterator<T, Cmp>::operator++(int)
 template <typename T, typename Cmp>
 Iterator<T, Cmp>& Iterator<T, Cmp>::operator--()
 {
-    if (node->is_end == N)
+    if (node)
     {
         node = node->prev;
+        if (!node)
+        {
+            before_begin = true;
+        }
     }
-    else
+    else if (after_end)
     {
+        // можно взять m_last from class Set, но Iterator не имеет ссылки на контейнер
         node = Set<T, Cmp>::getRightMost(root);
-    }
+        after_end = false;
+    } 
+    // before_begin--
     return *this;
 }
 
@@ -76,10 +92,6 @@ const T* Iterator<T, Cmp>::operator->()
 template <typename T, typename Cmp>
 bool Iterator<T, Cmp>::operator==(const Iterator<T, Cmp> &other)
 {
-    if (node->is_end == Y && other.node->is_end == Y)
-    {
-        return true;
-    }
     return node == other.node;
 }
 

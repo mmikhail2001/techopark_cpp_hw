@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <memory>
 
@@ -7,7 +8,6 @@
 template <typename T, typename Cmp>
 Set<T, Cmp>::Set(Cmp cmp) : m_cmp(cmp), m_root(nullptr) 
 {	
-	setNodeEnd();
 }
 
 template <typename T, typename Cmp>
@@ -18,7 +18,6 @@ Set<T, Cmp>::Set(InputIt first, InputIt last, Cmp cmp) : m_cmp(cmp)
 	{
 		insert(*first);
 	}
-	setNodeEnd();
 }
 
 template <typename T, typename Cmp>
@@ -28,7 +27,6 @@ Set<T, Cmp>::Set(std::initializer_list<T> const &init_list)
 	{
 		insert(elem);
 	}
-	setNodeEnd();
 }
 
 template <typename T, typename Cmp>
@@ -39,7 +37,6 @@ Set<T, Cmp>::Set(Set<T, Cmp_> const &other)
 	{
 		insert(elem);
 	}
-	setNodeEnd();
 }
 
 
@@ -50,7 +47,6 @@ Set<T, Cmp>::Set(Set const &other)
 	{
 		insert(elem);
 	}
-	setNodeEnd();
 }
 
 template <typename T, typename Cmp>
@@ -387,14 +383,14 @@ Iterator<T, Cmp>  Set<T, Cmp>::begin() const
 	if (!m_root)
 	{
 		return end();
-	}
-	return Iterator<T, Cmp>(m_first, m_root);
+	
+}	return Iterator<T, Cmp>(m_first, m_root);
 }
 
 template <typename T, typename Cmp>
 Iterator<T, Cmp>  Set<T, Cmp>::end() const
 {
-	return Iterator<T, Cmp>(m_node_end, m_root);
+	return Iterator<T, Cmp>(nullptr, m_root, true);
 }
 
 template <typename T, typename Cmp>
@@ -468,13 +464,5 @@ template <typename T, typename Cmp>
 bool Set<T, Cmp>::operator!=(Set const &other) const
 {
 	return !(*this == other);
-}
-
-
-
-template <typename T, typename Cmp>
-void Set<T, Cmp>::setNodeEnd()
-{
-	m_node_end = std::make_shared<Node>(0, Y);
 }
 

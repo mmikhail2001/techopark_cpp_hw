@@ -5,7 +5,6 @@
 #include <type_traits>
 #include <optional>
 
-enum IS_END {N = 0, Y = 1};
 
 template <typename T, typename Cmp>
 class Iterator;
@@ -26,8 +25,8 @@ public:
 private:
     struct Node
     {
-        Node(const T &data, IS_END is_end = N)
-        : data(data), height(1), is_end(is_end)
+        Node(const T &data)
+        : data(data), height(1)
         {
         }
 
@@ -40,7 +39,6 @@ private:
         // для двусвязного спика
         std::shared_ptr<Node> 	next;
         std::shared_ptr<Node> 	prev;
-        IS_END                  is_end;
     };
 public:
     Set(Cmp cmp = Cmp{});
@@ -65,8 +63,8 @@ public:
     bool            operator==(Set<T, Cmp> const &other) const;
     bool            operator!=(Set<T, Cmp> const &other) const;
 private:
-    std::shared_ptr<Node>	m_node_end;
-    std::shared_ptr<Node>	m_node_beg;
+    // std::shared_ptr<Node>	m_node_end;
+    // std::shared_ptr<Node>	m_node_beg;
     friend class Iterator<T, Cmp>;
     // корень дерева
     std::shared_ptr<Node>	m_root;

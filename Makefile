@@ -9,7 +9,7 @@ TARGET_EXE 	= main
 PATH_LINTERS_SCRIPT = linters/run.sh
 
 TEST_OPT 		= OFF
-DEBUG_OPT 		= ON
+DEBUG_OPT 		= OFF
 SANITIZE_OPT 	= OFF
 
 .PHONY: check build test clean run coverage

@@ -26,7 +26,7 @@ Iterator<T, Cmp>& Iterator<T, Cmp>::operator++()
         node = Set<T, Cmp>::getLeftMost(root);
         before_begin = false;
     }
-    // after_end
+    // after_end++ = after_end
     return *this;
 }
 
@@ -55,7 +55,7 @@ Iterator<T, Cmp>& Iterator<T, Cmp>::operator--()
         node = Set<T, Cmp>::getRightMost(root);
         after_end = false;
     } 
-    // before_begin--
+    // before_begin-- = before_begin
     return *this;
 }
 

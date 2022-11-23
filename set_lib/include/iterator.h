@@ -39,6 +39,7 @@ public:
 private:
     typename  Set<T, Cmp>::Node* node;
     typename  Set<T, Cmp>::Node* root;
+    // признаки местоположения итератора перед началом и после конца
     bool before_begin   = false;
     bool after_end      = false; 
 };

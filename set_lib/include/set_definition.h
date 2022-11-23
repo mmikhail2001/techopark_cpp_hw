@@ -52,6 +52,7 @@ Set<T, Cmp>::Set(Set const &other)
 template <typename T, typename Cmp>
 Set<T, Cmp>::~Set()
 {
+	// итерируемся по списку
 	Node *node = m_first;
 	while (node)
 	{
@@ -176,7 +177,6 @@ void Set<T, Cmp>::erase(const T &data)
 	auto ptr = findInternal(data);
 	if (ptr != nullptr)
 	{
-		// отдельная функция - удалить из списка
 		auto prevNode = prevInternal(ptr);
 		auto nextNode = nextInternal(ptr);
 		// извлекаем из списка

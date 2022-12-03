@@ -201,8 +201,7 @@ void Set<T, Cmp>::erase(const T &data)
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node *Set<T, Cmp>::eraseInternal(Node *node, const T &data)
 {
-	if (!node)
-		return nullptr;
+	if (!node) return nullptr;
 	if (m_cmp(node->data, data))
 	{
 		node->right = eraseInternal(node->right, data);
@@ -253,8 +252,7 @@ typename Set<T, Cmp>::Node *Set<T, Cmp>::eraseInternal(Node *node, const T &data
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node *Set<T, Cmp>::findReplacement(Node *node) const
 {
-	if (!node)
-		return nullptr;
+	if (!node) return nullptr;
 	while (node->left)
 	{
 		node = node->left;
@@ -265,8 +263,7 @@ typename Set<T, Cmp>::Node *Set<T, Cmp>::findReplacement(Node *node) const
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node *Set<T, Cmp>::detachReplacement(Node *node)
 {
-	if (!node)
-		return nullptr;
+	if (!node) return nullptr;
 	if (!node->left)
 	{
 		return node->right;
@@ -312,8 +309,7 @@ void Set<T, Cmp>::fixHeight(Node *node)
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node *Set<T, Cmp>::rotateLeft(Node *node)
 {
-	if (!node)
-		return nullptr;
+	if (!node) return nullptr;
 	Node *tmp = node->right;
 	node->right = tmp->left;
 	if (tmp->left)
@@ -331,8 +327,7 @@ typename Set<T, Cmp>::Node *Set<T, Cmp>::rotateLeft(Node *node)
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node *Set<T, Cmp>::rotateRight(Node *node)
 {
-	if (!node)
-		return nullptr;
+	if (!node) return nullptr;
 	Node *tmp = node->left;
 	node->left = tmp->right;
 	if (tmp->right)
@@ -357,8 +352,7 @@ int Set<T, Cmp>::getBalance(Node *node) const
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node *Set<T, Cmp>::doBalance(Node *node)
 {
-	if (!node)
-		return nullptr;
+	if (!node) return nullptr;
 	fixHeight(node);
 
 	switch (getBalance(node))
@@ -402,8 +396,7 @@ Iterator<T, Cmp> Set<T, Cmp>::end() const
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node *Set<T, Cmp>::nextInternal(Node *node) const
 {
-	if (!node)
-		return nullptr;
+	if (!node) return nullptr;
 
 	if (node->right)
 	{
@@ -425,8 +418,7 @@ typename Set<T, Cmp>::Node *Set<T, Cmp>::nextInternal(Node *node) const
 template <typename T, typename Cmp>
 typename Set<T, Cmp>::Node *Set<T, Cmp>::prevInternal(Node *node) const
 {
-	if (!node)
-		return nullptr;
+	if (!node) return nullptr;
 	if (node->left)
 	{
 		node = node->left;

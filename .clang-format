@@ -3,6 +3,7 @@ IndentWidth: 4
 UseTab: Always
 AccessModifierOffset: 0
 AccessModifierOffset: -4
+AlwaysBreakTemplateDeclarations: Yes
 # IndentAccessModifiers: false 
 # does not work
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html

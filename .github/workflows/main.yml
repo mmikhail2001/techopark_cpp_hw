@@ -27,8 +27,8 @@ jobs:
       - uses: actions/checkout@v2 
       - run: make build TEST_OPT=ON
       - run: make run
-      - run: make test
-      - name: GO TEST COVERAGE
+      - run: ./build/tests/test_set --gtest_filter=TestBasicsFunctional*
+      - name: GO MY TESTS COVERAGE
         run: |
           make lcov
           lcov --remove ./build/coverage.info -o ./build/coverage.info '/usr/include/*' '/usr/lib/*' $(echo $(pwd)/tests/\*)
@@ -36,7 +36,20 @@ jobs:
       - name: Upload artifacts (COVERAGE REPORT) 
         uses: actions/upload-artifact@v2
         with:
-          name: coverage-report
+          name: coverage-report-my-tests
+          path: build/report
+      - run: make build TEST_OPT=ON
+      - run: make run
+      - run: make test
+      - name: GO ALL TESTS COVERAGE
+        run: |
+          make lcov
+          lcov --remove ./build/coverage.info -o ./build/coverage.info '/usr/include/*' '/usr/lib/*' $(echo $(pwd)/tests/\*)
+          make genhtml
+      - name: Upload artifacts (COVERAGE REPORT) 
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report-all-tests
           path: build/report
       - name: GO VALGRIND TESTS
         run: make valgrind_tests  

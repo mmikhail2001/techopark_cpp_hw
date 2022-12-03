@@ -1,19 +1,16 @@
 #pragma once
 
-#include <iostream>
-#include <memory>
-
 #include "set.h"
 
 template <typename T, typename Cmp>
-Set<T, Cmp>::Set(Cmp cmp) : m_cmp(cmp), m_root(nullptr) 
-{	
+Set<T, Cmp>::Set(Cmp cmp) : m_cmp(cmp), m_root(nullptr)
+{
 }
 
 template <typename T, typename Cmp>
 template <typename InputIt, typename>
-Set<T, Cmp>::Set(InputIt first, InputIt last, Cmp cmp) : m_cmp(cmp) 
-{	
+Set<T, Cmp>::Set(InputIt first, InputIt last, Cmp cmp) : m_cmp(cmp)
+{
 	for (; first != last; ++first)
 	{
 		insert(*first);
@@ -23,14 +20,14 @@ Set<T, Cmp>::Set(InputIt first, InputIt last, Cmp cmp) : m_cmp(cmp)
 template <typename T, typename Cmp>
 Set<T, Cmp>::Set(std::initializer_list<T> const &init_list)
 {
-	for (auto && elem : init_list)
+	for (auto &&elem : init_list)
 	{
 		insert(elem);
 	}
 }
 
 template <typename T, typename Cmp>
-template<typename Cmp_>
+template <typename Cmp_>
 Set<T, Cmp>::Set(Set<T, Cmp_> const &other)
 {
 	for (auto elem : other)
@@ -38,7 +35,6 @@ Set<T, Cmp>::Set(Set<T, Cmp_> const &other)
 		insert(elem);
 	}
 }
-
 
 template <typename T, typename Cmp>
 Set<T, Cmp>::Set(Set const &other)
@@ -62,9 +58,8 @@ Set<T, Cmp>::~Set()
 	}
 }
 
-
 template <typename T, typename Cmp>
-Set<T, Cmp>& Set<T, Cmp>::operator=(Set other)
+Set<T, Cmp> &Set<T, Cmp>::operator=(Set other)
 {
 	Swap(other);
 	return *this;
@@ -114,25 +109,25 @@ void Set<T, Cmp>::insert(const T &data)
 		ptr->next->prev = ptr;
 	}
 }
-    
+
 template <typename T, typename Cmp>
-Iterator<T, Cmp>  Set<T, Cmp>::find(const T &data) const
+Iterator<T, Cmp> Set<T, Cmp>::find(const T &data) const
 {
-    auto ptr = findInternal(data);
+	auto ptr = findInternal(data);
 	return ptr ? Iterator<T, Cmp>(ptr, m_root) : end();
 }
 
 template <typename T, typename Cmp>
 Iterator<T, Cmp> Set<T, Cmp>::lower_bound(const T &data) const
 {
-    auto ptr = lower_boundInternal(data);
+	auto ptr = lower_boundInternal(data);
 	return ptr ? Iterator<T, Cmp>(ptr, m_root) : end();
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::findInternal(const T &data) const
+typename Set<T, Cmp>::Node *Set<T, Cmp>::findInternal(const T &data) const
 {
-    Node* node = m_root;
+	Node *node = m_root;
 	while (node)
 	{
 		if (!m_cmp(node->data, data) && !m_cmp(data, node->data))
@@ -152,10 +147,10 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::findInternal(const T &data) const
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::lower_boundInternal(const T &data) const
+typename Set<T, Cmp>::Node *Set<T, Cmp>::lower_boundInternal(const T &data) const
 {
-    Node* node = m_root;
-	Node* result = nullptr;
+	Node *node = m_root;
+	Node *result = nullptr;
 	while (node)
 	{
 		if (m_cmp(node->data, data))
@@ -164,23 +159,23 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::lower_boundInternal(const T &data) cons
 		}
 		else
 		{
-			result = node; 
+			result = node;
 			node = node->left;
 		}
 	}
 	return result;
 }
-    
+
 template <typename T, typename Cmp>
 void Set<T, Cmp>::erase(const T &data)
-{	
+{
 	auto ptr = findInternal(data);
 	if (ptr != nullptr)
 	{
 		auto prevNode = prevInternal(ptr);
 		auto nextNode = nextInternal(ptr);
 		// извлекаем из списка
-		if ( !(prevNode == nullptr && nextNode == nullptr) )
+		if (!(prevNode == nullptr && nextNode == nullptr))
 		{
 			if (prevNode == nullptr)
 			{
@@ -204,12 +199,10 @@ void Set<T, Cmp>::erase(const T &data)
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::eraseInternal(Node* node, const T &data)
+typename Set<T, Cmp>::Node *Set<T, Cmp>::eraseInternal(Node *node, const T &data)
 {
 	if (!node)
-    {
 		return nullptr;
-    }
 	if (m_cmp(node->data, data))
 	{
 		node->right = eraseInternal(node->right, data);
@@ -228,16 +221,16 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::eraseInternal(Node* node, const T &data
 	}
 	else
 	{
-		Node* left = node->left;
-		Node* right = node->right;
-		
+		Node *left = node->left;
+		Node *right = node->right;
+
 		if (!right)
-        {
+		{
 			delete node;
 			return left;
-        }
-		
-		Node* replace = findReplacement(right);
+		}
+
+		Node *replace = findReplacement(right);
 		replace->right = detachReplacement(right);
 		if (replace->right)
 		{
@@ -249,89 +242,79 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::eraseInternal(Node* node, const T &data
 			replace->left->parent = replace;
 		}
 		// на выходе из рекурсии редактируем parent
-		replace->parent = node->parent; 
+		replace->parent = node->parent;
 		delete node;
-		
+
 		return doBalance(replace);
 	}
 	return doBalance(node);
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::findReplacement(Node* node) const
+typename Set<T, Cmp>::Node *Set<T, Cmp>::findReplacement(Node *node) const
 {
 	if (!node)
-	{
 		return nullptr;
-	}
 	while (node->left)
-    {
+	{
 		node = node->left;
-    }
+	}
 	return node;
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::detachReplacement(Node* node)
+typename Set<T, Cmp>::Node *Set<T, Cmp>::detachReplacement(Node *node)
 {
 	if (!node)
-	{
 		return nullptr;
-	}
 	if (!node->left)
-    {
-		return node->right;
-    }
-	node->left = detachReplacement(node->left);
-	if (node->left)
 	{
-		node->left->parent = node;
+		return node->right;
 	}
+	node->left = detachReplacement(node->left);
 	return doBalance(node);
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::insertInternal(Node* node, const T &data)
+typename Set<T, Cmp>::Node *Set<T, Cmp>::insertInternal(Node *node, const T &data)
 {
 	if (!node)
-    {
-    	return new Node(data);
-    }
+	{
+		return new Node(data);
+	}
 	if (m_cmp(data, node->data))
 	{
 		node->left = insertInternal(node->left, data);
 		// nullptr не возвращается, т.к. вставка обязательна
-		node->left->parent = node; 
+		node->left->parent = node;
 	}
 	else if (m_cmp(node->data, data))
 	{
 		node->right = insertInternal(node->right, data);
-		node->right->parent = node; 
+		node->right->parent = node;
 	}
 
 	return doBalance(node);
 }
 
 template <typename T, typename Cmp>
-size_t Set<T, Cmp>::getHeight(Node* node) const
+size_t Set<T, Cmp>::getHeight(Node *node) const
 {
 	return node ? node->height : 0;
 }
 
 template <typename T, typename Cmp>
-void Set<T, Cmp>::fixHeight(Node* node)
+void Set<T, Cmp>::fixHeight(Node *node)
 {
 	node->height = std::max(getHeight(node->left), getHeight(node->right)) + 1;
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::rotateLeft(Node* node)
+typename Set<T, Cmp>::Node *Set<T, Cmp>::rotateLeft(Node *node)
 {
 	if (!node)
-	{
 		return nullptr;
-	}
-	Node* tmp = node->right;
+	Node *tmp = node->right;
 	node->right = tmp->left;
 	if (tmp->left)
 	{
@@ -346,93 +329,82 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::rotateLeft(Node* node)
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::rotateRight(Node* node)
+typename Set<T, Cmp>::Node *Set<T, Cmp>::rotateRight(Node *node)
 {
 	if (!node)
-	{
 		return nullptr;
-	}
-	// node = a
-	// tmp = node->left = b
-	Node* tmp = node->left;
-	node->left = tmp->right; // теперь a->left = C
+	Node *tmp = node->left;
+	node->left = tmp->right;
 	if (tmp->right)
 	{
 		tmp->right->parent = node;
 	}
-	tmp->right = node; // теперь b->right = a
+	tmp->right = node;
 	tmp->parent = node->parent;
 	node->parent = tmp;
-	
+
 	fixHeight(node);
 	fixHeight(tmp);
 	return tmp;
 }
 
 template <typename T, typename Cmp>
-int Set<T, Cmp>::getBalance(Node* node) const
+int Set<T, Cmp>::getBalance(Node *node) const
 {
 	return getHeight(node->right) - getHeight(node->left);
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::doBalance(Node* node)
+typename Set<T, Cmp>::Node *Set<T, Cmp>::doBalance(Node *node)
 {
 	if (!node)
-	{
 		return nullptr;
-	}
 	fixHeight(node);
-	
+
 	switch (getBalance(node))
 	{
-		case 2:
+	case 2: {
+		if (getBalance(node->right) < 0)
 		{
-			if (getBalance(node->right) < 0)
-            {
-				node->right = rotateRight(node->right);
-            }
-			return rotateLeft(node);
+			node->right = rotateRight(node->right);
 		}
-		case -2:
+		return rotateLeft(node);
+	}
+	case -2: {
+		if (getBalance(node->left) > 0)
 		{
-			if (getBalance(node->left) > 0)
-            {
-				node->left = rotateLeft(node->left);
-            }
-			return rotateRight(node);
+			node->left = rotateLeft(node->left);
 		}
-		default:
-        {
-			return node;
-        }
+		return rotateRight(node);
+	}
+	default: {
+		return node;
+	}
 	}
 }
 
-
 template <typename T, typename Cmp>
-Iterator<T, Cmp>  Set<T, Cmp>::begin() const
+Iterator<T, Cmp> Set<T, Cmp>::begin() const
 {
 	if (!m_root)
 	{
 		return end();
-	
-}	return Iterator<T, Cmp>(m_first, m_root);
+	}
+	return Iterator<T, Cmp>(m_first, m_root);
 }
 
 template <typename T, typename Cmp>
-Iterator<T, Cmp>  Set<T, Cmp>::end() const
+Iterator<T, Cmp> Set<T, Cmp>::end() const
 {
 	return Iterator<T, Cmp>(nullptr, m_root, true);
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::nextInternal(Node* node) const
+typename Set<T, Cmp>::Node *Set<T, Cmp>::nextInternal(Node *node) const
 {
 	if (!node)
-	{
 		return nullptr;
-	}
+
 	if (node->right)
 	{
 		node = node->right;
@@ -440,10 +412,10 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::nextInternal(Node* node) const
 	}
 	else
 	{
-		Node* needed_parent = node->parent;
+		Node *needed_parent = node->parent;
 		while (needed_parent && needed_parent->left != node)
 		{
-			node = needed_parent; 
+			node = needed_parent;
 			needed_parent = node->parent;
 		}
 		return needed_parent;
@@ -451,12 +423,10 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::nextInternal(Node* node) const
 }
 
 template <typename T, typename Cmp>
-typename Set<T, Cmp>::Node* Set<T, Cmp>::prevInternal(Node* node) const
+typename Set<T, Cmp>::Node *Set<T, Cmp>::prevInternal(Node *node) const
 {
 	if (!node)
-	{
 		return nullptr;
-	}
 	if (node->left)
 	{
 		node = node->left;
@@ -464,10 +434,10 @@ typename Set<T, Cmp>::Node* Set<T, Cmp>::prevInternal(Node* node) const
 	}
 	else
 	{
-		Node* needed_parent = node->parent;
+		Node *needed_parent = node->parent;
 		while (needed_parent && needed_parent->right != node)
 		{
-			node = needed_parent; 
+			node = needed_parent;
 			needed_parent = node->parent;
 		}
 		return needed_parent;
@@ -505,17 +475,4 @@ template <typename T, typename Cmp>
 bool Set<T, Cmp>::operator!=(Set const &other) const
 {
 	return !(*this == other);
-}
-
-
-template <typename T, typename Cmp>
-void Set<T, Cmp>::show()
-{
-	Node *node = m_first;
-	while (node)
-	{
-		std::cout << node->data << " ";
-		node = node->next;
-	}
-	std::cout << std::endl;
 }

@@ -4,6 +4,7 @@ set -o pipefail
 
 SRC_PATHS="main.cpp set_lib/src/*.cpp"
 INCLUDE_PATHS="set_lib/include/*.h"
+INCLUDE_PATHS_HPP="set_lib/include/*.hpp"
 TESTS_PATHS="tests/*.cpp"
 
 INCLUDE_DIRECTORIES="set_lib/include"
@@ -29,7 +30,7 @@ function check_log() {
 
 # ********** cppcheck ********** 
 print_header "RUN cppcheck"
-check_log "cppcheck ${SRC_PATHS} ${INCLUDE_PATHS} ${TESTS_PATHS} --enable=all --inconclusive --error-exitcode=1 -I${INCLUDE_DIRECTORIES} --suppress=missingIncludeSystem" "\(information\)"
+check_log "cppcheck ${SRC_PATHS} ${INCLUDE_PATHS} ${INCLUDE_PATHS_HPP} ${TESTS_PATHS} --enable=all --inconclusive --error-exitcode=1 -I${INCLUDE_DIRECTORIES} --suppress=missingIncludeSystem" "\(information\)"
 
 # # ********** clang-tidy ********** 
 print_header "RUN clang-tidy"
@@ -39,11 +40,11 @@ check_log "clang-tidy ${SRC_PATHS} ${TESTS_PATHS} -warnings-as-errors=* -extra-a
 # # ********** cpplint ********** 
 print_header "RUN cpplint"
 check_log "cpplint --extensions=cpp ${SRC_PATHS} ${TESTS_PATHS}"    "Can't open for reading"
-check_log "cpplint --extensions=h   ${INCLUDE_PATHS}"               "Can't open for reading"
+check_log "cpplint --extensions=h   ${INCLUDE_PATHS}  ${INCLUDE_PATHS_HPP}"               "Can't open for reading"
 
 
 # # ********** clang-format ********** 
 print_header "RUN clang-format"
-diff <(clang-format --style=Microsoft ${SRC_PATHS} ${INCLUDE_PATHS} ${TESTS_PATHS}) <(cat ${SRC_PATHS} ${INCLUDE_PATHS} ${TESTS_PATHS}) || exit 1
+diff <(clang-format --style=Microsoft ${SRC_PATHS} ${INCLUDE_PATHS} ${INCLUDE_PATHS_HPP} ${TESTS_PATHS}) <(cat ${SRC_PATHS} ${INCLUDE_PATHS}  ${INCLUDE_PATHS_HPP} ${TESTS_PATHS}) || exit 1
 
 print_header "SUCCESS"

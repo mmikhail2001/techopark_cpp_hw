@@ -41,8 +41,6 @@ lcov:
 genhtml:
 	cd ${BUILD_DIR} && genhtml -o report coverage.info
 
-# lcov --remove coverage.info -o coverage.info '/usr/include/*' '/usr/lib/*' $$(cd .. && echo $(pwd)/${TESTS_DIR}/\* && cd ${BUILD_DIR}) && \
-
 valgrind_tests:
 	valgrind --tool=memcheck --leak-check=yes ./${BUILD_DIR}/${TESTS_DIR}/${TESTS_EXE}
 
@@ -53,5 +51,5 @@ scan_build:
 	cd ${BUILD_DIR} && scan-build $(MAKE) --no-print-directory
 
 formating:
-	clang-format -i -style=file  main.cpp ${LIB_DIR}/include/*.h ${LIB_DIR}/src/*.cpp ${TESTS_DIR}/*.cpp
+	clang-format -i -style=file  main.cpp ${LIB_DIR}/include/*.h ${LIB_DIR}/include/*.hpp ${LIB_DIR}/src/*.cpp ${TESTS_DIR}/*.cpp
 

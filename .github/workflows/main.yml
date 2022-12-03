@@ -28,14 +28,16 @@ jobs:
       - run: make build TEST_OPT=ON
       - run: make run
       - run: make test
-      # *** НЕТ CPP для тестирования *** 
-      # - name: GO TEST COVERAGE
-      #   run: make coverage
-      # - name: Upload artifacts (COVERAGE REPORT) 
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: coverage-report
-      #     path: build/report
+      - name: GO TEST COVERAGE
+        run: |
+          make lcov
+          lcov --remove ./build/coverage.info -o ./build/coverage.info '/usr/include/*' '/usr/lib/*' $(echo $(pwd)/tests/\*)
+          make genhtml
+      - name: Upload artifacts (COVERAGE REPORT) 
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: build/report
       - name: GO VALGRIND TESTS
         run: make valgrind_tests  
       - name: GO VALGRIND TARGET

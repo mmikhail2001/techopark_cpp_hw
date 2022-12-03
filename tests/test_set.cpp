@@ -183,7 +183,7 @@ extern void check_operator_less();
 extern void check_destructor();
 extern void check_erase();
 
-TEST(TestBasicsFunctional, Test_Alexey_Halaidzhy)
+TEST(TestOther, Test_Alexey_Halaidzhy)
 {
     // в тест кейсах exit(0) при ошибках, поэтому фейл будет отображен
     check_constness();

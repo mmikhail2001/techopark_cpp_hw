@@ -36,8 +36,12 @@ test:
 check:
 	chmod u+x ${PATH_LINTERS_SCRIPT} && ./${PATH_LINTERS_SCRIPT}
 
-coverage:
-	cd ${BUILD_DIR} && lcov -t "testing_${LIB_DIR}" -o coverage.info -c -d ${LIB_DIR} && genhtml -o report coverage.info
+lcov:
+	cd ${BUILD_DIR} && lcov -t "testing_${LIB_DIR}" -o coverage.info -c -d ./${TESTS_DIR}/ 
+genhtml:
+	cd ${BUILD_DIR} && genhtml -o report coverage.info
+
+# lcov --remove coverage.info -o coverage.info '/usr/include/*' '/usr/lib/*' $$(cd .. && echo $(pwd)/${TESTS_DIR}/\* && cd ${BUILD_DIR}) && \
 
 valgrind_tests:
 	valgrind --tool=memcheck --leak-check=yes ./${BUILD_DIR}/${TESTS_DIR}/${TESTS_EXE}
